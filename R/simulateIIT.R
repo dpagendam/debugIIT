@@ -6,6 +6,7 @@
 #' @param \code{Wld_f} is the number of wildtype females that are expected at time zero.
 #' @param \code{stochasticInitial} should the initial numbers be sampled treating \code{propTypes} as probabilities.
 #' @param \code{numReleased} is the number of insects to be released at each each release time.  This should be a numeric vector of length equal to the number of release times.
+#' @param \code{ratioReleased} is the ratio of insects to be released at each each release time (instead of numReleased), relative to the number of males in the wild.  This should be a numeric vector of length equal to the number of release times.
 #' @param \code{releaseMixture} a numeric vector containing the proportions of each insect type in the released mixture.  The vector should be named according to the insect types.
 #' @param \code{contaminationProbs} a numeric vector containing the probabilities that the a released insect is a female rather than a male for each insect type released.
 #' @param \code{propTypes} is the proportions of each type in the initial population.  This should be a numeric vector with names correcponding to the types of insects.
@@ -16,7 +17,7 @@
 #' @export
 
 
-simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleased, releaseTypes, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, maxSize = 1000000)
+simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleased = NULL, ratioReleased = NULL, releaseTypes, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, maxSize = 1000000)
 {
 	params["theta"] = params["mu_m"]/params["mu_f"]
 	times = c(releaseTimes, maxTime)
@@ -87,8 +88,13 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 	totalMalesReleased = 0
 	numMalesByType = c()
 	numReleasedByType = c()
+	numReleased = c()
 	for(i in 1:length(releaseTypes))
 	{
+		if(!is.null(ratioReleased))
+		{
+			numReleased[1] = ratioReleased*state["Wld_m"]
+		}
 		numReleasedOfThisType = round(numReleased[1]*releaseMixture[releaseTypes[i]])
 		malesReleasedOfThisType = rbinom(1, numReleasedOfThisType, 1 - contaminationProb)
 		totalMalesReleased = totalMalesReleased + malesReleasedOfThisType
@@ -146,6 +152,10 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 			numReleasedByType = c()
 			for(i in 1:length(releaseTypes))
 			{
+				if(!is.null(ratioReleased))
+				{
+					numReleased[i] = ratioReleased*nextStart["Wld_m"]
+				}
 				numReleasedOfThisType = round(numReleased[i]*releaseMixture[releaseTypes[i]])
 				malesReleasedOfThisType = rbinom(1, numReleasedOfThisType, 1 - contaminationProb)
 				totalMalesReleased = totalMalesReleased + malesReleasedOfThisType
