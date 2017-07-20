@@ -1,6 +1,6 @@
 #' @export
 
-trajectoryQuantiles = function(dailySim)
+trajectoryQuantiles = function(dailySim, relevantStateNames)
 {
 	d = dim(dailySim)
 	numSims = d[1]
@@ -12,6 +12,12 @@ trajectoryQuantiles = function(dailySim)
 	percentile50 = matrix(NA, numDays, numState)
 	percentile25 = matrix(NA, numDays, numState)
 	percentile2.5 = matrix(NA, numDays, numState)
+	
+	colnames(percentile97.5) = relevantStateNames
+	colnames(percentile75) = relevantStateNames
+	colnames(percentile50) = relevantStateNames
+	colnames(percentile25) = relevantStateNames
+	colnames(percentile2.5) = relevantStateNames
 
 	for(i in 1:numDays)
 	{
