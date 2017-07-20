@@ -1,4 +1,4 @@
-@export
+#' @export
 
 plotQuantiles = function(quantileList, times, name, col)
 {

@@ -1,5 +1,4 @@
-
-@export
+#' @export
 
 simulationToDaily = function(times, states, dailyTimes, relevantStateNames)
 {
