@@ -2,6 +2,7 @@
 
 ## Stochastic modelling of Incompatible Insect Technique (IIT) programs for control of mosquito populations.
 **Authors**: Dan Pagendam
+
 **Contributors**: Nigel Snoad, Nigel Beebe, Brendan Trewin
 
 debugIIT provides a set of functions for stochastic modelling of population dynamics using continuous-time Markov chains (birth-death processes).  The package is useful for stochastic simulation of possible population trajectories, which when aggregated, can be used to construct probabilistic predictive distributions for IIT program outcomes such as the likelihood of driving a population to extinction. The simulation code is largely written in C++ and makes use of the Rcpp package.
@@ -128,7 +129,7 @@ relevantStateNames = c("Wld_m", "WMel_m", "WAlb_m", "Wld_f_Wld", "Wld_f_WMel", "
 for(i in 1 :numSims)
 {
 	cat("Performing simulation ", i, "....")
-	simulation = simulateIIT(params, Wld_m, Wld_f, TRUE, rep(numReleased, length(releaseDays)), "WAlb", releaseMixture, contaminationProb, propTypes, releaseDays, maxDays, maxSize = 1000000)
+	simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f = Wld_f, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
 	dailySimStorage[i, , ] = simulationToDaily(tempEnv$simulation$t, tempEnv$simulation$state, regularTimes, relevantStateNames)
 	cat("Done. \n")
 }
