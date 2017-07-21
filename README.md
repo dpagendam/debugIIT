@@ -28,7 +28,7 @@ To install the package then type
 
 ### Using this package
 
-The code below provides a test script to generate a single simulation
+The code below provides a test script to generate a single simulation in R
 
 ```
 require(debugIIT)
@@ -116,8 +116,10 @@ names(releaseMixture) = c("Wld", "WMel", "WAlb")
 simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f = Wld_f, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
 # Create a plot for just the wildtype males for example
 plot(simulation$t, simulation$state[, "Wld_m"], ty= "l", xlab = "Days", ylab = "Number of Wildtype Males")
+```
+If you'd now like to generate and visualise an ensemble of trajectories, you can try the code below:
 
-
+```
 # Create an ensemble of simualations that have been reduced to a daily timestep
 numSims = 10
 regularTimes = 0:365
