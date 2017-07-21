@@ -1,9 +1,9 @@
 ## debugIIT
 
 ## Stochastic modelling of Incompatible Insect Technique (IIT) programs for control of mosquito populations.
-**Authors**: Dan Pagendam
+**Authors**: Dan Pagendam (CSIRO)
 
-**Contributors**: Nigel Snoad, Nigel Beebe, Brendan Trewin
+**Contributors**: Nigel Snoad (Verily), Nigel Beebe (University of Queensland), Brendan Trewin (CSIRO)
 
 debugIIT provides a set of functions for stochastic modelling of population dynamics using continuous-time Markov chains (birth-death processes).  The package is useful for stochastic simulation of possible population trajectories, which when aggregated, can be used to construct probabilistic predictive distributions for IIT program outcomes such as the likelihood of driving a population to extinction. The simulation code is largely written in C++ and makes use of the Rcpp package.
 
