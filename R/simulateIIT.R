@@ -17,7 +17,7 @@
 #' @export
 
 
-simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleased = NULL, ratioReleased = NULL, releaseTypes, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, maxSize = 1000000)
+simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleased = NULL, ratioReleased = NULL, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, maxSize = 1000000)
 {
 	params["theta"] = params["mu_m"]/params["mu_f"]
 	times = c(releaseTimes, maxTime)
@@ -25,7 +25,7 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 	types = names(propTypes)
 	state = createBlankStartStateVector(params, types)
 	names = names(propTypes)
-	releasedTypes = names(releaseMixture)
+	releaseTypes = names(releaseMixture)
 	
 	totalMales = 0;
 	maleNumbers = c()
@@ -88,7 +88,10 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 	totalMalesReleased = 0
 	numMalesByType = c()
 	numReleasedByType = c()
-	numReleased = c()
+	if(!is.null(ratioReleased))
+	{
+		numReleased = c()
+	}
 	for(i in 1:length(releaseTypes))
 	{
 		if(!is.null(ratioReleased))
@@ -96,7 +99,15 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 			numReleased[1] = ratioReleased*state["Wld_m"]
 		}
 		numReleasedOfThisType = round(numReleased[1]*releaseMixture[releaseTypes[i]])
-		malesReleasedOfThisType = rbinom(1, numReleasedOfThisType, 1 - contaminationProb)
+		if(numReleasedOfThisType > 0)
+		{
+			malesReleasedOfThisType = rbinom(1, numReleasedOfThisType, 1 - contaminationProb)
+		}
+		else
+		{
+			malesReleasedOfThisType = 0
+		}
+		
 		totalMalesReleased = totalMalesReleased + malesReleasedOfThisType
 		numMalesByType = c(numMalesByType, malesReleasedOfThisType)
 		numReleasedByType = c(numReleasedByType, numReleasedOfThisType)
@@ -157,7 +168,14 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 					numReleased[i] = ratioReleased*nextStart["Wld_m"]
 				}
 				numReleasedOfThisType = round(numReleased[i]*releaseMixture[releaseTypes[i]])
-				malesReleasedOfThisType = rbinom(1, numReleasedOfThisType, 1 - contaminationProb)
+				if(numReleasedOfThisType > 0)
+				{
+					malesReleasedOfThisType = rbinom(1, numReleasedOfThisType, 1 - contaminationProb)
+				}
+				else
+				{
+					malesReleasedOfThisType = 0
+				}
 				totalMalesReleased = totalMalesReleased + malesReleasedOfThisType
 				numMalesByType = c(numMalesByType, malesReleasedOfThisType)
 				numReleasedByType = c(numReleasedByType, numReleasedOfThisType)

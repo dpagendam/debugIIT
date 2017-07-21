@@ -12,114 +12,151 @@ The package was developed at [CSIRO](http://www.csiro.au), Australia as part of 
 ### Package installation
 First, clone the package from this repository using 
 
-``` git clone https://github.com/dpagendam/debugIIT 
-	cd debugIIT
-	
-```
+``` git clone https://github.com/dpagendam/debugIIT ```
 
 You will be prompted to enter your GitHub username and password to complete the clone.
 
-To install the package from GitHub, you will first need to install the devtools package in R using the command:
+To install the package then type
 
-```install.packages("devtools")```
-
-Once installed, you will need to load the devtools R package and install the friedsIndex R package using:
-
+```	
+	R CMD build debugIIT
+	R CMD INSTALL debugIIT_1.0.tar.gz
 ```
-library(devtools)
-devtools::install()
-```
+
+
 
 ### Using this package
 
-To use friedsIndex with some of the packaged example data, try:
+The code below provides a test script to generate a single simulation
 
 ```
-library(adMRR)
-library(raster)
-# Load the example data for Innisfail, Queensland, Australia
-data(landClass)
-data(dataMRR6)
- 
-# Define the study region in landClass using the width in metres, the (lat, long) of 
-# the upper left (UL) and lower right (LR) corners
-width = 769.45
-UL_lat = -1*(17 + 31/60 + 58.53/3600)
-UL_long = 146 + 1/60 + 47.04/3600
-LR_lat = -1*(17 + 32/60 + 29.53/3600)
-LR_long = 146 + 2/60 + 13.18/3600
-corners = matrix(rbind(c(UL_lat, UL_long), c(LR_lat, LR_long)),2, 2)
-colnames(corners) = c("Lat", "Long")
-corners_m = coordsToMetres(corners, UL_lat, UL_long, LR_lat, LR_long, width)
-UL_m = corners_m[1, ]
-LR_m = corners_m[2, ]
-# Get the dimensions of the pixels in the study region
-d = pixelDim(nrow(landClass), ncol(landClass), UL_m, LR_m)
-dx = d["dx"]
-dy = d["dy"]
+require(debugIIT)
 
-# Add trap x, y locations to dataMRR1 data matrix
-trapXY = coordsToMetres(dataMRR6[, c("Lat", "Long")], UL_lat, UL_long, LR_lat, LR_long, width)
-dataMRR6 = cbind(dataMRR6, trapXY)
+# Scenario specific variables
+numberOfBlocks = 1
+contaminationProb = 1/1000
+numReleasedPerHouse = 50
+maxDays = 365
+releaseDays = cumsum(c(0, rep(c(4,3), 25), 3))
 
-# Create a (lat, long) for the insect release site
-releaseSite = matrix(c(-1*(17 + 32/60 + 18.77/3600), 146 + 1/60 + 58.16/3600), 1, 2, byrow = TRUE)
 
-#releaseSite = matrix(NA, 5, 2)
-#releaseSite[1, ] = c(-17.535362, 146.032838)
-#releaseSite[2, ] = c(-17.536294, 146.032814)
-#releaseSite[3, ] = c(-17.537180, 146.032790)
-#releaseSite[4, ] = c(-17.538103, 146.032766)
-#releaseSite[5, ] = c(-17.538806, 146.032748)
+argVal = 1 # vary this on a cluster array job to ensure trajectories use different seeds 
+set.seed(argVal)
 
-colnames(releaseSite) = c("Lat", "Long")
+# Male and female death rates
+mu_f = runif(1, 1/15, 1/3)
+maleModifier = runif(1, 0.5, 1.0)
+mu_m = maleModifier*mu_f
 
-numInsectsReleased = 1250
-#numInsectsReleased = rep(248, 5)
-releaseSite_m = coordsToMetres(releaseSite, UL_lat, UL_long, LR_lat, LR_long, width)
+# Parameters governing the delay while viable juveniles develop
+gamma_shape = sample(10:18, size = 1)
+gamma_rate = 1
 
-# Create the spatial distribution of mosquito concentration (mosquitoes per square metre) for each pixel at the time of release.
-initialConcentration = mrrInitialConditions(releaseSite, numInsectsReleased, nrow(landClass), ncol(landClass), UL_lat, UL_long, LR_lat, LR_long, dx, dy)
+# Fried's index for competition
+c_Wld = 1
+c_WAlb = runif(1, 0.7, 1.0)
+c_WMel = runif(1, 0.7, 1.0)
 
-# Create a vector called times that contains the times at which the mosquito concentration grids (from the advection-diffusion model) are required.
-deltaT = 1/24/4 #measured in days but equal to 15 minutes
-tMax = 7 #measured in days
-times = seq(0, tMax, deltaT)
- 
+# proportion that is wildtype versus WMel
+propWildtype = runif(1, 0.1, 0.3)
 
-# Construct Parameter Group for an advection-diffusion model
-repellorLandClasses = c(1, 2, 4)
-attractorLandClasses = c(5)
-maxAdvection = 5.376
-advectionDecayHalfDistance = 4.22
-diffusivityValue = 68.415^2
-deathRate = 0.382
+###### Numbers of houses for reference #######
+# Mourilyan has 256
+# South Johnstone has 237
+# Goondi Bend has 232
+# Downtown Innisfail has 1561
+##############################################
 
-diffusivity =  mrrParameter(gridType = "D", parameterNames = "diffusivity", lower = 0, upper = 40000, directions = "xy", relevantLandValues = c(1,2,3,4,5), parameterIsPixelValue = TRUE, paramValues = diffusivityValue)
-attractors = mrrParameter(gridType = "v", parameterNames = c("maxAdvection", "advectionDecayHalfDistance"), lower = c(0, 0), upper = c(5, Inf), directions = "xy", relevantLandValues = attractorLandClasses, parameterIsPixelValue = FALSE, attractor = TRUE, paramValues = c(maxAdvection, advectionDecayHalfDistance))
-repellors = mrrParameter(gridType = "v", parameterNames = c("maxAdvection", "advectionDecayHalfDistance"), lower = c(0, 0), upper = c(5, Inf), directions = "xy", relevantLandValues = repellorLandClasses, parameterIsPixelValue = FALSE, attractor = FALSE, paramValues = c(maxAdvection, advectionDecayHalfDistance))
-K = mrrParameter(gridType = NULL, parameterNames = "K", lower = 0, upper = 1, directions = NA, relevantLandValues = NULL, parameterIsPixelValue = FALSE, attractor = FALSE, paramValues = 1)
-bw = mrrParameter(gridType = NULL, parameterNames = "trapBandwidth", lower = 0 , upper = 25, directions = NA, relevantLandValues = NULL, parameterIsPixelValue = FALSE, attractor = FALSE, paramValues = NA)
-mu = mrrParameter(gridType = NULL, parameterNames = "deathRate", lower = 0 , upper = 1.0, directions = NA, relevantLandValues = NULL, parameterIsPixelValue = FALSE, attractor = FALSE, paramValues = deathRate)
-mrrParams = mrrParameterGroup(diffusivity, attractors, repellors, K, bw, mu)
+numHouses = sample(15:30, size = 1)
 
-# Run the model and store the output
-run = adRun(mrrParams, initialConcentration, times, landClass, dx, dy, LR_m, UL_m, lrw = 16000000)
+# number of mosquitoes per house
+numMosquitoes = sample(5:15, size = sum(numHouses), replace = TRUE)
 
-# Load the background image and plot the concentrations over time
-bg_path = system.file("extdata", "Aerial.png", package="adMRR")
-bg = raster(bg_path)
+#Normal adult carrying capacity
+K_eq = sum(numMosquitoes)
 
-par(mfrow = c(4,2))
-plot.concentration(run, 0, bg, title = "Day 0")
-plot.concentration(run, 1, bg, title = "Day 1")
-plot.concentration(run, 2, bg, title = "Day 2")
-plot.concentration(run, 3, bg, title = "Day 3")
-plot.concentration(run, 4, bg, title = "Day 4")
-plot.concentration(run, 5, bg, title = "Day 5")
-plot.concentration(run, 5, bg, title = "Day 6")
-plot.concentration(run, 5, bg, title = "Day 7")
+###########################################
+###########################################
+#			START - DONT MODIFY
+###########################################
 
-#Plot the advection field for the model
-plot.advection(run, scale = 0.5, headlength = 0.025, thinning = 5)
+# These are other parameters that are derived from equilibria
+theta = mu_m/mu_f
+Wld_m = K_eq/(1 + theta)
+Wld_f = K_eq*theta/(1 + theta)
+I_eq = K_eq*(mu_f*theta + mu_m)/(gamma_rate*(1 + theta))
+N_max = gamma_shape*I_eq*10000
+lambda = N_max*gamma_rate*I_eq*(1 + theta)/(K_eq*theta*(N_max - I_eq*gamma_shape))
+
+###########################################
+###########################################
+#			END - DONT MODIFY
+###########################################
+
+
+# total released fpr the mixed area for the IIT
+numReleased = numReleasedPerHouse*numHouses
+
+params = c(mu_f, mu_m, gamma_shape, gamma_rate, c_Wld, c_WMel, c_WAlb, N_max, lambda, K_eq)
+names(params) <- c("mu_f", "mu_m", "gamma_shape", "gamma_rate", "c_Wld", "c_WMel", "c_WAlb", "N_max", "lambda", "K_eq")
+
+propTypes = c(propWildtype, (1 - propWildtype), 0)
+names(propTypes) = c("Wld", "WMel", "WAlb")
+releaseMixture = c(0, 0, 1)
+names(releaseMixture) = c("Wld", "WMel", "WAlb")
+
+
+###########################################
+###########################################
+#		SIMULATE SOME TRAJECTORIES
+###########################################
+
+# Generate a single simulation from the birth-death process
+simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f = Wld_f, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
+# Create a plot for just the wildtype males for example
+plot(simulation$t, simulation$state[, "Wld_m"], ty= "l", xlab = "Days", ylab = "Number of Wildtype Males")
+
+
+# Create an ensemble of simualations that have been reduced to a daily timestep
+numSims = 10
+regularTimes = 0:365
+relevantStateNames = c("Wld_m", "WMel_m", "WAlb_m", "Wld_f_Wld", "Wld_f_WMel", "Wld_f_WAlb", "WMel_f_Wld", "WMel_f_WMel", "WMel_f_WAlb", "WAlb_f_Wld", "WAlb_f_WMel", "WAlb_f_WAlb")
+dailySimStorage = array(NA, c(numSims, length(regularTimes), length(relevantStateNames)))
+relevantStateNames = c("Wld_m", "WMel_m", "WAlb_m", "Wld_f_Wld", "Wld_f_WMel", "Wld_f_WAlb", "WMel_f_Wld", "WMel_f_WMel", "WMel_f_WAlb", "WAlb_f_Wld", "WAlb_f_WMel", "WAlb_f_WAlb")
+
+
+for(i in 1 :numSims)
+{
+	cat("Performing simulation ", i, "....")
+	simulation = simulateIIT(params, Wld_m, Wld_f, TRUE, rep(numReleased, length(releaseDays)), "WAlb", releaseMixture, contaminationProb, propTypes, releaseDays, maxDays, maxSize = 1000000)
+	dailySimStorage[i, , ] = simulationToDaily(tempEnv$simulation$t, tempEnv$simulation$state, regularTimes, relevantStateNames)
+	cat("Done. \n")
+}
+
+
+quantileList = trajectoryQuantiles(dailySimStorage, relevantStateNames)
+
+pdf("quantileTrajectories.pdf")
+par(mfrow = c(3,1))
+plotQuantiles(quantileList, regularTimes, "Wld_m", "red")
+plotQuantiles(quantileList, regularTimes, "WMel_m", "purple")
+plotQuantiles(quantileList, regularTimes, "WAlb_m", "blue")
+
+par(mfrow = c(3,1))
+plotQuantiles(quantileList, regularTimes, "Wld_f_Wld", "red")
+plotQuantiles(quantileList, regularTimes, "Wld_f_WMel", "purple")
+plotQuantiles(quantileList, regularTimes, "Wld_f_WAlb", "blue")
+
+par(mfrow = c(3,1))
+plotQuantiles(quantileList, regularTimes, "WMel_f_Wld", "red")
+plotQuantiles(quantileList, regularTimes, "WMel_f_WMel", "purple")
+plotQuantiles(quantileList, regularTimes, "WMel_f_WAlb", "blue")
+
+par(mfrow = c(3,1))
+plotQuantiles(quantileList, regularTimes, "WAlb_f_Wld", "red")
+plotQuantiles(quantileList, regularTimes, "WAlb_f_WMel", "purple")
+plotQuantiles(quantileList, regularTimes, "WAlb_f_WAlb", "blue")
+
+dev.off()
+
 ```
