@@ -132,7 +132,7 @@ for(i in 1 :numSims)
 {
 	cat("Performing simulation ", i, "....")
 	simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f = Wld_f, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
-	dailySimStorage[i, , ] = simulationToDaily(tempEnv$simulation$t, tempEnv$simulation$state, regularTimes, relevantStateNames)
+	dailySimStorage[i, , ] = simulationToDaily(simulation$t, simulation$state, regularTimes, relevantStateNames)
 	cat("Done. \n")
 }
 
