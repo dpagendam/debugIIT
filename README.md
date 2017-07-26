@@ -46,7 +46,7 @@ set.seed(argVal)
 
 # Male and female death rates
 mu_f = runif(1, 1/15, 1/3)
-maleModifier = runif(1, 0.5, 1.0)
+maleModifier = runif(1, 1.0, 2.0)
 mu_m = maleModifier*mu_f
 
 # Parameters governing the delay while viable juveniles develop
@@ -95,7 +95,7 @@ lambda = N_max*gamma_rate*I_eq*(1 + theta)/(K_eq*theta*(N_max - I_eq*gamma_shape
 ###########################################
 
 
-# total released fpr the mixed area for the IIT
+# total released for the mixed area for the IIT
 numReleased = numReleasedPerHouse*numHouses
 
 params = c(mu_f, mu_m, gamma_shape, gamma_rate, c_Wld, c_WMel, c_WAlb, N_max, lambda, K_eq)

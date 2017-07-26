@@ -52,6 +52,7 @@ Rcpp::List rate_m_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 	m_birth_stateChange[maleStateName] = m_birth_stateChange[maleStateName] + 1.0;
 	m_birth_stateChange[ind] = m_birth_stateChange[ind] - 1.0;
 	
+	//TO DO: CHANGE TO WOLBACHIA SPECIFIC DEATH RATES
 	double m_death = params["mu_m"]*state[maleStateName];
 	m_death_stateChange = rep(0.0, state.length());
 	m_death_stateChange.attr("names") = state.attr("names");
@@ -140,6 +141,7 @@ Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 	f_birth_stateChange[femaleStateName] = f_birth_stateChange[femaleStateName] + 1.0;
 	f_birth_stateChange[ind] = f_birth_stateChange[ind] - 1.0;
 
+	//TO DO: CHANGE TO WOLBACHIA SPECIFIC DEATH RATES
 	double f_death = params["mu_f"]*state[femaleStateName];
 	f_death_stateChange = rep(0.0, state.length());
 	f_death_stateChange.attr("names") = state.attr("names");

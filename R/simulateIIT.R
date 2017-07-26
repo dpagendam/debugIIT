@@ -13,11 +13,12 @@
 #' @param \code{releaseTimes} is a numeric vector containing the times at which the insects are released. 
 #' @param \code{maxTime} is the maximum time to run the simulation for.  Simulations where the entire population goes extinct will be terminated earlier.
 #' @param \code{maxSize} provides control over the blocksize used to extend the matrices used to store simulation outputs.
+#' @param \code{initState} a numeric vector that acts as an override allowing you to specify the initial state vector directly.
 #' @return The function returns a named list containing a numeric vector of times ("t") and a matrix of corresponding states ("states").
 #' @export
 
 
-simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleased = NULL, ratioReleased = NULL, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, maxSize = 1000000)
+simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleased = NULL, ratioReleased = NULL, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, initState = NULL, maxSize = 1000000)
 {
 	params["theta"] = params["mu_m"]/params["mu_f"]
 	times = c(releaseTimes, maxTime)
@@ -27,7 +28,7 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 	names = names(propTypes)
 	releaseTypes = names(releaseMixture)
 	
-	totalMales = 0;
+	totalMales = 0
 	maleNumbers = c()
 	maleNames = c()
 	if(!stochasticInitial)
@@ -82,6 +83,11 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 				state[paste0(names[j], "_imm_", i)] = immNumbers[j]
 			}
 		}
+	}
+	
+	if(!is.null(initState))
+	{
+		state = initState
 	}
 	
 	
