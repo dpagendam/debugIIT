@@ -38,7 +38,7 @@ trajectoryQuantiles = function(regSimArray, relevantStateNames)
 	}
 	result = list(percentile97.5 = percentile97.5, percentile75 = percentile75, percentile50 = percentile50, percentile25 = percentile25, percentile2.5 = percentile2.5)
 	class(result) = "trajectoryQuantileList"
-	return()
+	return(result)
 }
 
 
