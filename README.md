@@ -86,7 +86,8 @@ theta = mu_m/mu_f
 Wld_m = K_eq/(1 + theta)
 Wld_f = K_eq*theta/(1 + theta)
 I_eq = K_eq*(mu_f*theta + mu_m)/(gamma_rate*(1 + theta))
-N_max = gamma_shape*I_eq*10000
+N_multiplier = runif(1, 1.0, 10.0)
+N_max = gamma_shape*I_eq*N_multiplier
 lambda = N_max*gamma_rate*I_eq*(1 + theta)/(K_eq*theta*(N_max - I_eq*gamma_shape))
 
 ###########################################
