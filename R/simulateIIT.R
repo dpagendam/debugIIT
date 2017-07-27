@@ -125,7 +125,7 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 		femalesReleasedOfThisType = numReleasedByType[i] - numMalesByType[i]
 		if(femalesReleasedOfThisType > 0)
 		{
-			femalesMatedByTypes = rmultinom(1, femalesReleasedOfThisType, maleNumbers/totalMales)
+			femalesMatedByTypes = rmultinom(1, femalesReleasedOfThisType, numMalesByType/sum(numMalesByType))
 		}
 		else
 		{
@@ -193,7 +193,7 @@ simulateIIT = function(params, Wld_m, Wld_f, stochasticInitial = TRUE, numReleas
 				femalesReleasedOfThisType = numReleasedByType[i] - numMalesByType[i]
 				if(femalesReleasedOfThisType > 0)
 				{
-					femalesMatedByTypes = rmultinom(1, femalesReleasedOfThisType, maleNumbers/totalMales)
+					femalesMatedByTypes = rmultinom(1, femalesReleasedOfThisType, numMalesByType/sum(numMalesByType))
 				}
 				else
 				{
