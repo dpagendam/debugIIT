@@ -211,9 +211,6 @@ simulateIIT = function(params, Wld_m, Wld_f_Unmated, Wld_f_Wld, stochasticInitia
 					nextStart[paste0(releaseTypes[i], "_f_", releaseTypes[j])] = nextStart[paste0(releaseTypes[i], "_f_", releaseTypes[j])] + femalesMatedByTypes[j]
 				}
 			}	
-			print(nextStart)
-			print(times[x])
-			print(times[x + 1])
 			thisRound = simulateCTMC_cpp(nextStart, types, params, times[x], times[x + 1], maxSize, TRUE)
 			t = c(t, thisRound$times)
 			state = rbind(state, thisRound$states)
