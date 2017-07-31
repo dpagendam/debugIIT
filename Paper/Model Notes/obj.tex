@@ -1,0 +1,197 @@
+              \documentclass[]{article}  % list options between brackets
+\usepackage{amssymb,  amsfonts, amstext, amsmath, amsthm, authblk, graphicx, url}              % list packages between braces
+\newtheorem{theorem}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\newcommand{\boldTheta}{\mbox{\boldmath$\mbox{\boldmath$\theta$}$}}
+\newcommand{\boldAlpha}{\mbox{\boldmath$\mbox{\boldmath$\alpha$}$}}
+\newcommand{\boldEpsilon}{\mbox{\boldmath$\mbox{\boldmath$\epsilon$}$}}
+\newcommand{\boldPhi}{\marginpar{?}box{\boldmath$\mbox{\boldmath$\phi$}$}}
+\newcommand{\boldBeta}{\mbox{\boldmath$\mbox{\boldmath$\beta$}$}}
+\newcommand{\boldOmega}{\mbox{\boldmath$\mbox{\boldmath$\omega$}$}}
+
+\DeclareMathOperator*{\argmin}{argmin}
+
+% type user-defined commands here
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\begin{document}
+
+
+\title{A stochastic model for SIT population suppression}   % type title between braces
+\author{Pagendam, Trewin, Snoad, Beebe, others}
+\date{\today}    % type date between braces
+\maketitle
+
+\section{Model Summary}
+
+\begin{itemize}
+\item We model the system as a well mixed population with $N$ total niches or spaces in it (i.e the entire population cannot exceed $N$ individuals).  In general $N$ should be made large enough to easily accommodate the natural population (all life stages) and the overburden of Wolbachia infected males (and accidental females).  In the numerical work so far, I've used $N= 10,000$.  The actual value used doesn't matter, we just have to pick something large so that the state variables don't run into the ceiling.
+\item There is a stable population equlibirium for mosquitoes, $K_{adult}$ as a result of density dependent effects that occur amongst immature (e.g. larval) stages.
+\item Male mosquitoes die at some rate $\mu_m$,
+\item Female mosquitoes die at some rate $\mu_f$.
+\item Female mosquitoes produce future adults (i.e. those eggs that will definitely survive to become reproducing adults) at rate $\lambda$.
+\item We model immature mosquitoes as passing through a series of $n$ (integer) pseudo-developmental stages.  The rate, $\gamma$, at which an immature transitions from one of these states to the next is treated as equivalent for all stages.
+\item Wolbachia-infected males have a mating competitiveness coefficient (Fried's index) of $c (> 0)$ where $c=1$ corresponds to equal competitiveness with wildtype males, $c < 1$ means they are less-competitive and $c > 1$ means they are more competitive for mates.
+\end{itemize}
+
+We model this system as a continuous-time Markov chain (CTMC) having a state vector that contains as elements: 
+\begin{itemize}
+\item  the numbers of males $M_{Wld}, M_{WMel}$, and  $M_{WAlb}$ being of wildtype, WMel-infected and WAlb-infected respectively;
+\item the number of unmated females, $F_{Wld}, F_{WMel}$, and $F_{WAlb}$;
+\item the numbers of females of each type that have been mated by each type of male.   We denote the numbers of mated wildtype females using $F_{Wld \times Wld}$, $F_{Wld \times WAlb}$, and $F_{Wld \times WMel}$; the numbers of mated WMel females using $F_{WMel \times Wld}$, $F_{WMel \times WAlb}$, and $F_{WMel \times WMel}$; and the numbers of mated WAlb females as $F_{WAlb \times Wld}$, $F_{WAlb \times WAlb}$, and $F_{WAlb \times WMel}$.
+\item the numbers of juveniles in each pseudo-development state for each type of individual, namely: $I_{1, Wld}, \dots, I_{n, Wld}$ for wildtypes; $I_{1, WMel}, \dots, I_{n, WMel}$ for WMel; and $I_{1, WAlb}, \dots, I_{n, WAlb}$ for WAlb.
+\end{itemize}
+
+The CTMC is defined by transition rates $q(\boldsymbol{s} \rightarrow \boldsymbol{s}^\star)$ between two state vectors.  Each of the transition rates below defines the rates as which different types of events in the model are occurring. You can think of these transition rates as being components of the derivatives in a deterministic model.  To facilitate our description of these rates, we will define $\boldsymbol{s}$ to be the vector constructed by concatenating state variables (3 males types, 3 unmated female types, 9 mated female types and $3n$ juvenile types) listed above and we will use the function $z(\boldsymbol{s}, \textup{``}S \textup{''} , i)$ to be a function returning a vector of the same length as $\boldsymbol{s}$, having zeros in all entries except at that state named ``S'', which takes the integer $i$ as its value. \\
+
+\noindent {\it{Emergence of a male adult of type $Y \in \{ Wld, WMel, WAlb \}$:}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{ \gamma I_{n, wild}}{2}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}M_Y\textup{''}, 1) + z(\boldsymbol{s}, \textup{``} I_{n, Y} \textup{''} , -1),$$
+
+\noindent where $\gamma$ is the per capita rate at which immatures progress through the $n$ pseudo-development stages.  The total time spend as an immature therefore has a Gamma distribution with rate parameter $\gamma$ and shape parameter $n$.
+\\
+\\
+\\
+\noindent {\it{Death of a male adult of type $Y \in \{ Wld, WMel, WAlb \}$:}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = M_{Y} \mu_{m, Y}, \qquad \boldsymbol{v} =  z(\boldsymbol{s}, \textup{``} M_{Y} \textup{''} , -1),$$
+
+\noindent where $\mu_{m, Y}$ is the per capita death rate of male mosquitoes of type $Y$.
+\\
+\\
+\\
+\noindent {\it{Emergence of a female adult of type $X \in \{ Wld, WMel, WAlb \}$:}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{ \gamma I_{n, wild}}{2}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_X\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} I_{n, X} \textup{''} , -1),$$
+
+\noindent where $\gamma$ is the per capita rate at which immatures progress through the $n$ pseudo-development stages.  The total time spend as an immature therefore has a Gamma distribution with rate parameter $\gamma$ and shape parameter $n$.
+\\
+\\
+\\
+\noindent {\it{Mating of an unmated female adult of type $X \in \{Wld, WMel, WAlb \}$ by a male of type $Y \in \{ Wld, WMel, WAlb \}$ :}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{\eta c_Y F_X M_Y}{H}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_{X \times Y}\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} F_X \textup{''} , -1),$$
+
+\noindent where $c_Y$ $(> 0)$ is the mating competitiveness (Fried's Index) of type $Y$ males relative to wildtype males ($c_{Wld} = 1$); $\eta$ is the per capita mating rate of females; and $H$ is the number of houses in the population (used to make the rate at which matings occur, scale with the spatial dimension of habitat (area could be used instead of houses if desired).
+\\
+\\
+\\
+\noindent {\it{Death of an unmated female adult of type $X \in \{ Wld, WMel, WAlb \}$:}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = F_{X} \mu_{f, X}, \qquad \boldsymbol{v} =  z(\boldsymbol{s}, \textup{``} F_{X} \textup{''} , -1),$$
+
+\noindent where $\mu_{f, X}$ is the death rate of female mosquitoes of type X.
+\\
+\\
+\\
+\noindent {\it{Death of a female adult of type $X \in \{ Wld, WMel, WAlb \}$ that has been mated by a male of type $Y \in \{ Wld, WMel, WAlb \}$:}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = F_{X \times Y} \mu_{f, X}, \qquad \boldsymbol{v} =  z(\boldsymbol{s}, \textup{``} F_{X \times Y} \textup{''} , -1),$$
+
+\noindent where $\mu_{f,X}$ is the death rate of female mosquitoes of type X.
+\\
+\\
+\\
+\noindent {\it{Birth of a wildtype juvenile (sex undetermined until emergence as an adult):}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \lambda F_{Wld \times Wld}\frac{(I_{max} - I_{total})}{I_{max}},  \qquad \boldsymbol{v} =  z(\boldsymbol{s}, \textup{``} I_{Wld, 1} \textup{''} , 1)$$
+
+\noindent where $\lambda$ is the per capita rate at which females produce new future adults (individuals who will survive the development process at reach adulthood) entering the first immature pseudo-stage; $I_{total}$ is the total number of immatures of all types (i.e. $Wld$, $WMel$ and $WAlb$) across all $n$ pseudo-developmental stages; and $I_{max} = \alpha H$ is the maximum number of immatures that can be supported by the habitat, where $H$ is the number of houses and $\alpha$ is the maximum number of future adults as juveniles that can be supported at a house.
+\\
+\\
+\\
+\noindent {\it{Birth of a WMel juvenile (sex undetermined until emergence as an adult):}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \lambda (F_{WMel \times Wld} + F_{WMel \times WMel})\frac{(I_{max} - I_{total})}{I_{max}},  \qquad \boldsymbol{v} =  z(\boldsymbol{s}, \textup{``} I_{WMel, 1} \textup{''} , 1)$$
+
+\noindent where $\lambda$ is the per capita rate at which females produce new future adults (individuals who will survive the development process at reach adulthood) entering the first immature pseudo-stage; $I_{total}$ is the total number of immatures of all types (i.e. $Wld$, $WMel$ and $WAlb$) across all $n$ pseudo-developmental stages; and $I_{max} = \alpha H$ is the maximum number of immatures that can be supported by the habitat, where $H$ is the number of houses and $\alpha$ is the maximum number of future adults as juveniles that can be supported at a house.
+\\
+\\
+\\
+
+\noindent {\it{Birth of a WAlb juvenile (sex undetermined until emergence as an adult):}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \lambda (F_{WAlb \times Wld} + F_{WAlb \times WAlb})\frac{(I_{max} - I_{total})}{I_{max}},  \qquad \boldsymbol{v} =  z(\boldsymbol{s}, \textup{``} I_{WAlb, 1} \textup{''} , 1)$$
+
+\noindent where $\lambda$ is the per capita rate at which females produce new future adults (individuals who will survive the development process at reach adulthood) entering the first immature pseudo-stage; $I_{total}$ is the total number of immatures of all types (i.e. $Wld$, $WMel$ and $WAlb$) across all $n$ pseudo-developmental stages; and $I_{max} = \alpha H$ is the maximum number of immatures that can be supported by the habitat, where $H$ is the number of houses and $\alpha$ is the maximum number of future adults as juveniles that can be supported at a house.
+\\
+\\
+\\
+\noindent {\it{Progression of a juvenile of type $X \in \{ Wld, WMel, WAlb \}$ from pseudo-development stage $i$ to pseudo-development stage $i + 1$ $(i = 1, \dots, n-1)$:}}
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \gamma I_{X, i},  \qquad \boldsymbol{v} =  z(\boldsymbol{s}, \textup{``} I_{Wld, i} \textup{''} , 1)$$
+
+\noindent where $\gamma$ is the per capita rate at which immatures progress through the $n$ pseudo-development stages.  The total time spend as an immature therefore has a Gamma distribution with rate parameter $\gamma$ and shape parameter $n$.
+
+\section{Equilibria}
+Assume we have a population containing only wildtype males and females, but know the values of some of the parameters of our system.  Given this subset of parameters, it is possible to determine what the values of the remaining parameters must be from the stable equilibrium of the system.  For our purposes, we will suppose that we know, or can sample from a prior probability distribution for the following parameters:
+
+\begin{itemize}
+\item $\mu_{f, X}$ is the death rate of mosquitoes of type $X \in \{ Wld, WMel, WAlb \}$.
+\item $\mu_{m, Y}$ is the death rate of mosquitoes of type $Y \in \{ Wld, WMel, WAlb \}$.
+\item $K_{eq}$ is the number of mosquitoes that live at a house at stable equilibrium.
+\item The time taken for a mosquito to transition from a newly laid egg to a mature adult is Gamma distributed with rate parameter $\gamma$ and shape parameter $n$.
+\item The proportion of mated females in a population at equilibrium is $p_{mated}$.
+\item $I_{max}$ is the maximum possible number of future adults in the immature states.
+\end{itemize}
+
+In a pure population of type $X$ at equilibrium, a difference in the death rates of males an females will mean that the stable numbers of males and females differs.  We start by noting that at equilibrium, the rate at which a female produces females will equal the rate at which females die, so that $\tfrac{1}{2}\lambda (\bar{F}_{X \times X}) = \mu_{f,X} (\bar{F}_{X} + \bar{F}_{X \times X})$ and similarly, for the production of males, we have $\tfrac{1}{2}\lambda \bar{F}_{X \times X} = \mu_{m, X} \bar{M}_{X}$.  The use of the bar above these variables is used to indicate the value taken at the stable equilibrium.  This dictates that $\mu_{f, X} (\bar{F}_{X} + \bar{F}_{X \times X}) =  \mu_{m, X} \bar{M}_{X}$, meaning that the ratio of males to females is given by $\tfrac{\bar{F}_{X} + \bar{F}_{X \times X} }{\bar{M}_{X} } = \tfrac{\mu_m}{\mu_f}$. In other words, at a stable equilibrium population of $K_{eq} = \bar{M}_{X} + \bar{F}_{X} + \bar{F}_{X \times X}$, the corresponding numbers of males and females are
+
+$$ \bar{M}_{X} = \frac{K_{eq}}{1 + \theta}, \quad, \quad \bar{F}_{X} = (1 - p_{mated})\frac{K_{eq} \theta}{1 + \theta}, \quad and \quad \bar{F}_{X \times X} = p_{mated}\frac{K_{eq} \theta}{1 + \theta}, $$
+
+\noindent where $\theta = \tfrac{\mu_m}{\mu_f}$.
+
+For a pure wildtype population at equilibrium, there are three equalities that must hold for the system at the fixed point: 
+\begin{enumerate}
+\item the emergence of adults from pool $\bar{I}_{Wld, n}$ must equal the deaths of adults;
+\item the births of immatures into pool $\bar{I}_{Wld, 1}$ must equal the emergence of adults from pool $\bar{I}_{Wld, n}$; and
+\item the rate at which new females emerge from $\bar{I}_{Wld, n}$ must balance the rates at which unmated females are mated and die.
+\end{enumerate}
+
+\noindent Each of these inequalities allows us to obtain one of the unknown parameters as a function of the system state and known parameters, which we outline below.
+\\
+\\
+{\bf Numbers of Future Adults (Immatures) at Equilibrium}
+\\
+\\
+\noindent Rearranging the first equality, allows us to obtain $I_{Wld, i}$ $(\forall i)$ in terms of the known parameters $K_{eq}, \mu_{f, Wld}, \mu_{m, Wld}$ and $\gamma$, and solving the first equality, then allows use to obtain $\lambda$ (the per female birth rate) in terms of entirely known quantities as well.
+
+For equality (i), we have
+
+\begin{align*}
+\gamma \bar{I}_{Wld, n} &= (\bar{F}_{Wld} + \bar{F}_{Wld \times Wld})\mu_{f, Wld} + \bar{M}_{Wld}\mu_{m, Wld} \\
+&= \frac{\mu_{f, Wld} K_{eq} \theta}{(1 + \theta)} + \frac{\mu_{m, Wld} K_{eq}}{(1 + \theta)},
+\end{align*}
+
+\noindent and rearranging yields
+
+$$ \bar{I}_{Wld, n} = \frac{K_{eq}(\mu_{f, Wld} \theta + \mu_{m, Wld})}{\gamma(1 + \theta)} ,$$
+
+\noindent and since $\gamma$ is equal for each of the $n$ pools of immatures, it follows that $\bar{I}_{Wld, i} = \bar{I}_{Wld, n}$ $(\forall i)$.\\
+\\
+\\
+{\bf Per Capita Birth Rate of Mated Females}
+\\
+\\
+Rearranging the second inequality allows us to obtain $\lambda$ in terms of the other known parameters, 
+
+\begin{align*}
+\lambda \bar{F}_{Wld \times Wld}\frac{(I_{max} - \bar{I}_{total})}{I_{max}} &= \gamma \bar{I}_{Wld, n} \\
+\lambda &= \frac{\gamma \bar{I}_{Wld, n}I_{max}}{\bar{F}_{Wld \times Wld}(I_{max} - \bar{I}_{total})} \\
+\lambda &= \frac{\gamma (1 + \theta) \bar{I}_{Wld, n}I_{max}}{p_{mated}K_{eq}\theta(I_{max} - \bar{I}_{total})} 
+\end{align*}
+\\
+\\
+{\bf Per Capita Mating Rate of Unmated Females}
+\\
+\\
+Noting that $c_{Wld} = 1$, we start with the third inequality:
+
+\begin{align*}
+\frac{1}{2}\gamma \bar{I}_{Wld, n} &= \mu_{f, Wld} \bar{F}_{Wld} + \frac{\eta \bar{F}_{Wld} M_{Wld}}{H}\\
+\eta &= \frac{H(\tfrac{1}{2} \gamma \bar{I}_{Wld, n} - \mu_f \bar{F}_{Wld})}{\bar{F}_{Wld}\bar{M}_{Wld}}\\
+\eta &= \frac{H}{\bar{M}_{Wld}} \left( \frac{\gamma\bar{I}_n (1 + \theta)}{2(1 - p_{mated}) K_{eq} \theta} - \mu_{f, Wld}\right).
+\end{align*}
+
+
+\section{Simulations}
+
+NOTHING HERE
+
+\end{document}
