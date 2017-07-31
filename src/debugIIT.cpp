@@ -8,20 +8,19 @@ using namespace Rcpp;
 
 Rcpp::List rate_m_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector maleTypePrefix)
 {
-	
+	// This function works out the transition rates and the transition state change vector for males of a specified type
 	int n;
 	int l;
 	int ind;
 	std::string lastEggStateName;
 	std::string maleStateName;
+	std::string maleDeathRateName;
 	Rcpp::NumericVector m_birth_stateChange;
 	Rcpp::NumericVector m_death_stateChange;
 	Rcpp::NumericVector rates = NumericVector::create(_["birth"] = 0.0, _["death"] = 0.0); 
 	Rcpp::NumericMatrix stateChange(2, state.length());
 	Rcpp::List RcppOutput;
 	Rcpp::CharacterVector stateNames;
-	
-	
 	
 	
 	n = (int) round(params["gamma_shape"]);
@@ -34,6 +33,10 @@ Rcpp::List rate_m_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 	std::stringstream ss_m;
 	ss_m << maleTypePrefix[0] << "_m";
 	maleStateName = ss_m.str();
+	
+	std::stringstream ss_mu_m;
+	ss_mu_m << "mu_m_" << maleTypePrefix[0];
+	maleDeathRateName = ss_mu_m.str();
 	
 	stateNames = state.attr("names");
 	
@@ -52,8 +55,7 @@ Rcpp::List rate_m_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 	m_birth_stateChange[maleStateName] = m_birth_stateChange[maleStateName] + 1.0;
 	m_birth_stateChange[ind] = m_birth_stateChange[ind] - 1.0;
 	
-	//TO DO: CHANGE TO WOLBACHIA SPECIFIC DEATH RATES
-	double m_death = params["mu_m"]*state[maleStateName];
+	double m_death = params[maleDeathRateName]*state[maleStateName];
 	m_death_stateChange = rep(0.0, state.length());
 	m_death_stateChange.attr("names") = state.attr("names");
 	m_death_stateChange[maleStateName] = m_death_stateChange[maleStateName] - 1.0;
@@ -80,6 +82,8 @@ Rcpp::List rate_m_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 // [[Rcpp::export]]
 Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector femaleTypePrefix, Rcpp::CharacterVector mateTypeSuffix, Rcpp::CharacterVector allMateTypes)
 {
+	// This function works out the transition rates and the transition state change vector for females of a specified type.
+	// Note that unmated females should use "Unmated" for the mateTypeSuffix
 	int n;
 	int l;
 	int ind;
@@ -87,6 +91,8 @@ Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 
 	std::string lastEggStateName;
 	std::string femaleStateName;
+	std::string unmatedFemaleStateName;
+	std::string femaleDeathRateName;
 	std::string malesOfThisMatingTypeName;
 	Rcpp::NumericVector f_birth_stateChange;
 	Rcpp::NumericVector f_death_stateChange;
@@ -107,22 +113,13 @@ Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 	ss_f << femaleTypePrefix[0] << "_f_" << mateTypeSuffix[0];
 	femaleStateName = ss_f.str();
 	
-	std::stringstream ss_m;
-	ss_m << mateTypeSuffix[0] << "_m";
-	malesOfThisMatingTypeName = ss_m.str();
-
-	double allMales = 0.0;
-	double malesOfThisMateType = 0.0;
-	for(int i = 0; i < allMateTypes.length(); i++)
-	{
-		std::stringstream ss;
-		ss << allMateTypes[i] << "_m";
-		allMales = allMales + state(ss.str());
-		if(ss.str() == malesOfThisMatingTypeName)
-		{
-			malesOfThisMateType = state(ss.str());
-		}
-	}
+	std::stringstream ss_f_unmated;
+	ss_f_unmated << femaleTypePrefix[0] << "_f_Unmated";
+	unmatedFemaleStateName = ss_f_unmated.str();
+	
+	std::stringstream ss_mu_f;
+	ss_mu_f << "mu_f_" << femaleTypePrefix[0];
+	femaleDeathRateName = ss_mu_f.str();
 
 	stateNames = state.attr("names");
 	
@@ -134,15 +131,36 @@ Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 			break;
 		}
 	}
+	
+	double f_birth = 0.0;
+	if(mateTypeSuffix[0] == "Unmated")
+	{
+		f_birth = 0.5*params["gamma_rate"]*state[ind];
+		f_birth_stateChange = rep(0.0, state.length());
+		f_birth_stateChange.attr("names") = state.attr("names");
+		f_birth_stateChange[unmatedFemaleStateName] = f_birth_stateChange[unmatedFemaleStateName] + 1.0;
+		f_birth_stateChange[ind] = f_birth_stateChange[ind] - 1.0;
+	}
+	else
+	{
+		std::stringstream ss_m;
+		ss_m << mateTypeSuffix[0] << "_m";
+		malesOfThisMatingTypeName = ss_m.str();
+		double malesOfThisMateType = state[malesOfThisMatingTypeName];
+	
+		std::stringstream ss_c;
+		ss_c << "c_" << mateTypeSuffix[0];
+		f_birth = params["eta"]*params[ss_c.str()]/params["H"]*state[unmatedFemaleStateName]*state[malesOfThisMatingTypeName];
+		f_birth_stateChange = rep(0.0, state.length());
+		f_birth_stateChange.attr("names") = state.attr("names");
+		f_birth_stateChange[femaleStateName] = f_birth_stateChange[femaleStateName] + 1.0;
+		f_birth_stateChange[unmatedFemaleStateName] = f_birth_stateChange[unmatedFemaleStateName] - 1.0;
+	}
+	
+	
+	
 
-	double f_birth = 0.5*params["gamma_rate"]*state[ind]*malesOfThisMateType/allMales;
-	f_birth_stateChange = rep(0.0, state.length());
-	f_birth_stateChange.attr("names") = state.attr("names");
-	f_birth_stateChange[femaleStateName] = f_birth_stateChange[femaleStateName] + 1.0;
-	f_birth_stateChange[ind] = f_birth_stateChange[ind] - 1.0;
-
-	//TO DO: CHANGE TO WOLBACHIA SPECIFIC DEATH RATES
-	double f_death = params["mu_f"]*state[femaleStateName];
+	double f_death = params[femaleDeathRateName]*state[femaleStateName];
 	f_death_stateChange = rep(0.0, state.length());
 	f_death_stateChange.attr("names") = state.attr("names");
 	f_death_stateChange[femaleStateName] = f_death_stateChange[femaleStateName] - 1.0;
@@ -169,6 +187,7 @@ Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 // [[Rcpp::export]]
 Rcpp::List rate_imm_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector immatureType, Rcpp::NumericVector immatureClassNumber, Rcpp::CharacterVector allImmatureTypes)
 {
+	// This function works out the transition rates and the transition state change vector for immatures (future adults) of a specified type
 	int n;
 	int l;
 	int ind;
@@ -180,19 +199,12 @@ Rcpp::List rate_imm_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 	Rcpp::NumericVector rates(1); 
 	Rcpp::List RcppOutput;
 	std::string stateName;
-	std::string  maleStateNameForImmature;
 	std::string  femaleStateNameForImmature_Wld;
 	std::string  femaleStateNameForImmature_Wol;
-	Rcpp::CharacterVector maleStateNames(allImmatureTypes.length());
-	Rcpp::CharacterVector maleFriedsIndexNames(allImmatureTypes.length());
 
 	std::stringstream ss_imm;
 	ss_imm << immatureType[0] << "_imm_" << (int) immatureClassNumber[0];
 	stateName = ss_imm.str();
-
-	std::stringstream ss_m;
-	ss_m << immatureType[0] << "_m";
-	maleStateNameForImmature = ss_m.str();
 
 	std::stringstream ss_f_Wld;
 	ss_f_Wld << immatureType[0] << "_f_Wld";
@@ -201,17 +213,6 @@ Rcpp::List rate_imm_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 	ss_f_Wol << immatureType[0] << "_f_" << immatureType[0];
 	femaleStateNameForImmature_Wol = ss_f_Wol.str();
 
-	for(int i = 0; i < maleStateNames.length(); i++)
-	{
-		std::stringstream ss1;
-		ss1 << allImmatureTypes[i] << "_m";
-		maleStateNames[i] = ss1.str();
-		
-		std::stringstream ss2;
-		ss2 << "c_" << allImmatureTypes[i];
-		maleFriedsIndexNames[i] = ss2.str();
-	}
-
 	for(int i = 0 ; i < l; i++)
 	{
 		imm_stateChange(0, i) = 0.0;
@@ -219,24 +220,7 @@ Rcpp::List rate_imm_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 	
 
 	Rcpp::CharacterVector stateNames = state.attr("names");
-	double numerator_thisType = 0.0;
-	double denominator = 0.0;
-	double numerator_wild = state["Wld_m"]*params["c_Wld"];
-	for(int i = 0; i < maleStateNames.length(); i++)
-	{
-		for(int j = 0; j < state.length(); j++)
-		{
-			if(stateNames[j] == maleStateNames[i])
-			{
-				denominator = denominator + state[j]*params[(std::string) maleFriedsIndexNames[j]];
-				break;
-			}
-		}
-		if(maleStateNames[i] == maleStateNameForImmature)
-		{
-			numerator_thisType = state[i]*params[(std::string) maleFriedsIndexNames[i]];
-		}
-	}
+	
 	for(int i = 0; i < l; i++)
 	{
 		if(stateNames[i] == stateName)
@@ -261,26 +245,12 @@ Rcpp::List rate_imm_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 		//transition is a birth into this class
 		if(immatureType[0] == "Wld")
 		{
-			if(denominator > 0.0)
-			{
-				rates = params["lambda"]*numerator_thisType/denominator*state["Wld_f_Wld"]*(params["N_max"] - totalImm)/(params["N_max"]);
-			}
-			else
-			{
-				rates = 0.0;
-			}
+			rates = params["lambda"]*state["Wld_f_Wld"]*(params["I_max"] - totalImm)/(params["I_max"]);
 		}
 		else
 		{
-			if(denominator > 0.0)
-			{
-				rates = params["lambda"]*numerator_thisType/denominator*state[femaleStateNameForImmature_Wol]*(params["N_max"] - totalImm)/(params["N_max"]);
-				rates = rates + params["lambda"]*numerator_wild/denominator*state[femaleStateNameForImmature_Wld]*(params["N_max"] - totalImm)/(params["N_max"]);
-			}
-			else
-			{
-				rates = 0.0;
-			}
+			rates = params["lambda"]*state[femaleStateNameForImmature_Wol]*(params["I_max"] - totalImm)/(params["I_max"]);
+			rates = rates + params["lambda"]*state[femaleStateNameForImmature_Wld]*(params["I_max"] - totalImm)/(params["I_max"]);
 		}
 		imm_stateChange(0, ind) = imm_stateChange[ind] + 1.0;
 	}
@@ -302,6 +272,7 @@ Rcpp::List rate_imm_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 // [[Rcpp::export]]
 Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector allPrefixTypes)
 {
+	// This function aggregates all of the transition rates and transition vectors for all the possible types of events that can occur in the population
 	int numTypes = allPrefixTypes.length();
 	int n;
 	int l;
@@ -311,8 +282,9 @@ Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 
 	// For each type of male, there are deaths and births
 	// For each type of female that has been mated by each type of female there are deaths  and births
+	// For each type of female there are unmated types
 	// For each type there are numTypes immatures that can transition through the stages
-	int numTransitions = numTypes*2 + numTypes*numTypes*2 + numTypes*n;
+	int numTransitions = numTypes*2 + numTypes*(numTypes + 1)*2 + numTypes*n;
 	Rcpp::NumericMatrix allTransitions(numTransitions, l);
 	Rcpp::NumericVector allRates(numTransitions); 
 	Rcpp::List RcppOutput;
@@ -352,6 +324,32 @@ Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 				break;
 			}
 			
+			std::stringstream ss_f_unmated;
+			ss_f_unmated << allPrefixTypes[j] << "_f_Unmated";
+			thisFemaleName[0] = ss_f_unmated.str();
+			
+			if(stateNames[i] == thisFemaleName[0])
+			{
+				//It is an unmated female of this type
+				Rcpp::CharacterVector thisFemaleType(1);
+				thisFemaleType[0] = allPrefixTypes[j];
+				Rcpp::CharacterVector thisMateType(1);
+				thisMateType[0] = "Unmated";
+				Rcpp::List rateList = rate_f_cpp(state, params, thisFemaleType, thisMateType, allPrefixTypes);
+				Rcpp::NumericVector rate = rateList["rates"];
+				Rcpp::NumericMatrix stateChange = rateList["stateChange"];
+				for(int x = 0; x < rate.length(); x++)
+				{
+					allRates[counter + x] = rate[x];
+					for(int y = 0; y < l; y++)
+					{
+						allTransitions(counter + x, y) = stateChange(x, y);
+					}
+				}
+				counter = counter + rate.length();
+				break;
+			}
+			
 			for(int k = 0; k < allPrefixTypes.length(); k++)
 			{
 				
@@ -361,7 +359,7 @@ Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 
 				if(stateNames[i] == thisFemaleName[0])
 				{
-					//Is is a female of this type with an identified mating type
+					//It is a female of this type with an identified mating type
 					Rcpp::CharacterVector thisFemaleType(1);
 					thisFemaleType[0] = allPrefixTypes[j];
 					Rcpp::CharacterVector thisMateType(1);
@@ -428,6 +426,9 @@ Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 // [[Rcpp::export]]
 Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector R_types, Rcpp::NumericVector R_params,  Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector maxSize, bool store = true)
 {
+	// This is the main function responsible for doing the IIT simulations
+	// It gets all of the possible types of transitions that can occur and the rates at which these
+	// are occurring and then simulates a continuous-time Markov chain based on this set of transition rates.
 	Rcpp::NumericVector state = Rcpp::clone(R_state);
 	Rcpp::NumericVector params = Rcpp::clone(R_params);
 	Rcpp::NumericVector startTime = Rcpp::clone(R_startTime);

@@ -45,9 +45,16 @@ argVal = 1 # vary this on a cluster array job to ensure trajectories use differe
 set.seed(argVal)
 
 # Male and female death rates
-mu_f = runif(1, 1/15, 1/3)
+mu_f_Wld = runif(1, 1/15, 1/3)
 maleModifier = runif(1, 1.0, 2.0)
-mu_m = maleModifier*mu_f
+mu_m_Wld = maleModifier*mu_f_Wld
+
+# Wolbachia death Rate modifier
+wolbDeathRateModifier = runif(1, 1.0, 2.0)
+mu_f_WMel = mu_f_Wld*wolbDeathRateModifier
+mu_m_WMel = mu_m_Wld*wolbDeathRateModifier
+mu_f_WAlb = mu_f_Wld*wolbDeathRateModifier
+mu_m_WAlb = mu_m_Wld*wolbDeathRateModifier
 
 # Parameters governing the delay while viable juveniles develop
 gamma_shape = sample(10:18, size = 1)
@@ -61,6 +68,10 @@ c_WMel = runif(1, 0.7, 1.0)
 # proportion that is wildtype versus WMel
 propWildtype = runif(1, 0.1, 0.3)
 
+# proportion of wildtype feamels that are in the mated state at equilibrium
+propMated = runif(1, 0.2, 0.8)
+
+
 ###### Numbers of houses for reference #######
 # Mourilyan has 256
 # South Johnstone has 237
@@ -69,6 +80,10 @@ propWildtype = runif(1, 0.1, 0.3)
 ##############################################
 
 numHouses = sample(15:30, size = 1)
+
+# alpha is the multiplier applied to the total immatures at equilibrium and is used to 
+# calculate maximum number of future adults (as immatures) that can be supported at a house
+alpha = runif(numHouses, 1.0, 10.0)
 
 # number of mosquitoes per house
 numMosquitoes = sample(5:15, size = sum(numHouses), replace = TRUE)
@@ -82,13 +97,14 @@ K_eq = sum(numMosquitoes)
 ###########################################
 
 # These are other parameters that are derived from equilibria
-theta = mu_m/mu_f
+theta = mu_m_Wld/mu_f_Wld
 Wld_m = K_eq/(1 + theta)
-Wld_f = K_eq*theta/(1 + theta)
-I_eq = K_eq*(mu_f*theta + mu_m)/(gamma_rate*(1 + theta))
-N_multiplier = runif(1, 1.0, 10.0)
-N_max = gamma_shape*I_eq*N_multiplier
-lambda = N_max*gamma_rate*I_eq*(1 + theta)/(K_eq*theta*(N_max - I_eq*gamma_shape))
+Wld_f_Unmated = (1 - propMated)*K_eq*theta/(1 + theta)
+Wld_f_Wld = propMated*K_eq*theta/(1 + theta)
+I_eq = K_eq*(mu_f_Wld*theta + mu_m_Wld)/(gamma_rate*(1 + theta))
+I_max = sum(round(I_eq*gamma_shape/numHouses)*alpha)
+lambda = I_max*gamma_rate*I_eq*(1 + theta)/(K_eq*theta*propMated*(I_max - I_eq*gamma_shape))
+eta = numHouses/Wld_m*((gamma_rate*I_eq*(1 + theta))/(2*(1 - propMated)*K_eq*theta) - mu_f_Wld)
 
 ###########################################
 ###########################################
@@ -99,8 +115,8 @@ lambda = N_max*gamma_rate*I_eq*(1 + theta)/(K_eq*theta*(N_max - I_eq*gamma_shape
 # total released for the mixed area for the IIT
 numReleased = numReleasedPerHouse*numHouses
 
-params = c(mu_f, mu_m, gamma_shape, gamma_rate, c_Wld, c_WMel, c_WAlb, N_max, lambda, K_eq)
-names(params) <- c("mu_f", "mu_m", "gamma_shape", "gamma_rate", "c_Wld", "c_WMel", "c_WAlb", "N_max", "lambda", "K_eq")
+params = c(mu_f_Wld, mu_f_WMel, mu_f_WAlb, mu_m_Wld, mu_m_WMel, mu_m_WAlb, gamma_shape, gamma_rate, c_Wld, c_WMel, c_WAlb, I_max, lambda, K_eq, eta, numHouses)
+names(params) <- c("mu_f_Wld", "mu_f_WMel", "mu_f_WAlb", "mu_m_Wld", "mu_m_WMel", "mu_m_WAlb", "gamma_shape", "gamma_rate", "c_Wld", "c_WMel", "c_WAlb", "I_max", "lambda", "K_eq", "eta" , "H")
 
 propTypes = c(propWildtype, (1 - propWildtype), 0)
 names(propTypes) = c("Wld", "WMel", "WAlb")
@@ -114,7 +130,7 @@ names(releaseMixture) = c("Wld", "WMel", "WAlb")
 ###########################################
 
 # Generate a single simulation from the birth-death process
-simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f = Wld_f, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
+simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f_Unmated = Wld_f_Unmated, Wld_f_Wld = Wld_f_Wld, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
 # Create a plot for just the wildtype males for example
 plot(simulation$t, simulation$state[, "Wld_m"], ty= "l", xlab = "Days", ylab = "Number of Wildtype Males")
 ```

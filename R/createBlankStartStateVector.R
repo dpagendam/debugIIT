@@ -12,7 +12,7 @@ createBlankStartStateVector = function(params, types)
 {
 	n = round(params["gamma_shape"])
 	numMaleStates = length(types)
-	numFemaleStates = length(types)*length(types)
+	numFemaleStates = length(types)*(length(types) + 1)
 	numImmatureStates = length(types)*n
 	state = rep(0, numMaleStates + numFemaleStates + numImmatureStates )
 	immatureStateNames = c()
@@ -23,6 +23,7 @@ createBlankStartStateVector = function(params, types)
 	femaleStateNames = c()
 	for(i in 1:length(types))
 	{
+		femaleStateNames = c(femaleStateNames, paste0(types[i], "_f_Unmated"))
 		for(j in 1:length(types))
 		{
 			femaleStateNames = c(femaleStateNames, paste0(types[i], "_f_", types[j]))
