@@ -140,15 +140,14 @@ If you'd now like to generate and visualise an ensemble of trajectories, you can
 # Create an ensemble of simualations that have been reduced to a daily timestep
 numSims = 10
 regularTimes = 0:365
-relevantStateNames = c("Wld_m", "WMel_m", "WAlb_m", "Wld_f_Wld", "Wld_f_WMel", "Wld_f_WAlb", "WMel_f_Wld", "WMel_f_WMel", "WMel_f_WAlb", "WAlb_f_Wld", "WAlb_f_WMel", "WAlb_f_WAlb")
+relevantStateNames = c("Wld_m", "WMel_m", "WAlb_m", "Wld_Unmated", "Wld_f_Wld", "Wld_f_WMel", "Wld_f_WAlb", "WMel_Unmated", "WMel_f_Wld", "WMel_f_WMel", "WMel_f_WAlb", "WAlb_Unmated", "WAlb_f_Wld", "WAlb_f_WMel", "WAlb_f_WAlb")
 dailySimStorage = array(NA, c(numSims, length(regularTimes), length(relevantStateNames)))
-relevantStateNames = c("Wld_m", "WMel_m", "WAlb_m", "Wld_f_Wld", "Wld_f_WMel", "Wld_f_WAlb", "WMel_f_Wld", "WMel_f_WMel", "WMel_f_WAlb", "WAlb_f_Wld", "WAlb_f_WMel", "WAlb_f_WAlb")
 
 
 for(i in 1 :numSims)
 {
 	cat("Performing simulation ", i, "....")
-	simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f = Wld_f, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
+	simulation = simulateIIT(params = params, Wld_m = Wld_m, Wld_f_Unmated = Wld_f_Unmated, Wld_f_Wld = Wld_f_Wld, stochasticInitial = TRUE, numReleased = rep(numReleased, length(releaseDays)), ratioReleased = NULL, releaseMixture = releaseMixture, contaminationProb = contaminationProb, propTypes = propTypes, releaseTimes = releaseDays, maxTime = maxDays, maxSize = 1000000)
 	dailySimStorage[i, , ] = simulationToDaily(simulation$t, simulation$state, regularTimes, relevantStateNames)
 	cat("Done. \n")
 }
