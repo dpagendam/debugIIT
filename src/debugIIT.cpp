@@ -5,7 +5,6 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-
 Rcpp::List rate_m_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector maleTypePrefix)
 {
 	// This function works out the transition rates and the transition state change vector for males of a specified type
@@ -150,7 +149,15 @@ Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 	
 		std::stringstream ss_c;
 		ss_c << "c_" << mateTypeSuffix[0];
-		f_birth = params["eta"]*params[ss_c.str()]/params["H"]*state[unmatedFemaleStateName]*state[malesOfThisMatingTypeName];
+		if(params["DD_mating"] == 1)
+		{
+			f_birth = params["eta"]*params[ss_c.str()]/params["H"]*state[unmatedFemaleStateName]*state[malesOfThisMatingTypeName];
+		}
+		else
+		{
+			f_birth = params["eta"]*params[ss_c.str()]/params["H"]*state[unmatedFemaleStateName];
+		}
+		
 		f_birth_stateChange = rep(0.0, state.length());
 		f_birth_stateChange.attr("names") = state.attr("names");
 		f_birth_stateChange[femaleStateName] = f_birth_stateChange[femaleStateName] + 1.0;
@@ -424,7 +431,7 @@ Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 
 
 // [[Rcpp::export]]
-Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector R_types, Rcpp::NumericVector R_params,  Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector maxSize, bool store = true)
+Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector R_types, Rcpp::NumericVector R_params,  Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector R_maxSize, bool store = true)
 {
 	// This is the main function responsible for doing the IIT simulations
 	// It gets all of the possible types of transitions that can occur and the rates at which these
@@ -434,6 +441,7 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 	Rcpp::NumericVector startTime = Rcpp::clone(R_startTime);
 	Rcpp::NumericVector endTime = Rcpp::clone(R_endTime);
 	Rcpp::CharacterVector types = Rcpp::clone(R_types);
+	Rcpp::NumericVector maxSize = Rcpp::clone(R_maxSize);
 	
 	Rcpp::CharacterVector stateNames = state.attr("names");
 	
@@ -447,7 +455,7 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 	int numTransitions = numTypes + numTypes*numTypes + numTypes*n;
 	int counter = 0;
 	
-
+	
 	
 	l = state.length();
 	Rcpp::NumericMatrix transitions(numTransitions, l);
@@ -464,7 +472,7 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 	int ind;
 	Rcpp::NumericVector totalRate(1);
 
-
+	
 
 	while(cumulativeTime < endTime[0])
 	{
@@ -525,6 +533,8 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 			}
 		}
 
+		
+
 		if(cumulativeTime < endTime[0])
 		{
 			for(int i = 0; i < l; i++)
@@ -538,6 +548,21 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 				storeStates(counter, _) = state;
 			}
 		
+		}
+		if(storeStates.nrow() == (counter + 1))
+		{
+			Rcpp::NumericMatrix storeTimes_temp(1, storeStates.nrow() + (int) maxSize[0]);
+			Rcpp::NumericMatrix storeStates_temp(storeStates.nrow() + (int) maxSize[0], l);
+			for(int i = 0; i < (counter + 1); i++)
+			{
+				storeTimes_temp(0, i) = storeTimes(0, i);
+				for(int j = 0; j < l; j++)
+				{
+					storeTimes_temp(i, j) = storeStates(i, j);
+				}
+			}
+			storeTimes = storeTimes_temp;
+			storeStates = storeStates_temp;
 		}
 	}
 
@@ -556,3 +581,438 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 		return(RcppOutput);
 	}
 }
+
+// [[Rcpp::export]]
+Rcpp::List getImmigrationRates_cpp(Rcpp::NumericMatrix R_blockImmigrationRates, Rcpp::CharacterVector R_types, Rcpp::NumericVector R_state)
+{
+	Rcpp::NumericMatrix blockImmigrationRates = Rcpp::clone(R_blockImmigrationRates);
+	Rcpp::CharacterVector types = Rcpp::clone(R_types);
+	Rcpp::NumericVector state = Rcpp::clone(R_state);
+	
+	Rcpp::List RcppOutput;
+	int numBlocks = blockImmigrationRates.nrow();
+	int numStates = state.size();
+	int numTransitions = 0;
+	int numTypes = types.size();
+	// Immigration can occur for every adult type
+	// numTypes of males, numTypes of unmated females, numTypes*numTypes mated female types
+	int numAdultTypes = 2*numTypes + numTypes*numTypes;
+	for(int i = 0; i < numBlocks; i++)
+	{
+		for(int j = 0; j < numBlocks; j++)
+		{
+			if(blockImmigrationRates(i,j) != 0.0)
+			{
+				numTransitions = numTransitions + numAdultTypes;
+			}
+		}
+	}
+	Rcpp::NumericMatrix transitions(numTransitions, numStates);
+	Rcpp::NumericVector rates(numTransitions);
+	Rcpp::CharacterVector stateNames = state.attr("names");
+	Rcpp::CharacterVector thisType(2);
+	Rcpp::CharacterVector thisType_short(2);
+	rates = rates*0.0;
+	transitions = transitions*0.0;
+	
+	int entryCounter = 0;
+	std::stringstream ss_typeFrom;
+	std::stringstream ss_typeTo;
+	std::stringstream ss_typeFrom_short;
+	std::stringstream ss_typeTo_short;
+	int stateIndex1;
+	int stateIndex2;
+	bool done1 = FALSE;
+	bool done2 = FALSE;
+	for(int i = 0; i < numBlocks; i++)
+	{
+		//Block that individuals are emmigrating from
+		for(int j = 0; j < numBlocks; j++)
+		{
+			//Block that individuals are immigrating to
+			for(int x = 0; x < numTypes; x++)
+			{
+				//Do males
+				ss_typeFrom << types[x] << "_m.Block_" << i + 1;
+				thisType[0] = ss_typeFrom.str();
+				ss_typeFrom_short << types[x] << "_m";
+				thisType_short[0] = ss_typeFrom_short.str();
+				ss_typeTo << types[x] << "_m.Block_" << j + 1;
+				thisType[1] = ss_typeTo.str();
+				ss_typeTo_short << types[x]  << "_m";
+				thisType_short[1] = ss_typeTo_short.str();
+				
+				if(blockImmigrationRates(i, j) != 0.0 && thisType_short[0] == thisType_short[1])
+				{
+					done1 = FALSE;
+					done2 = FALSE;
+					for(int n = 0; n < stateNames.size(); n++)
+					{
+						if(stateNames(n) == thisType[0])
+						{
+							stateIndex1 = n;
+							done1 = TRUE;
+						}
+						if(stateNames(n) == thisType[1])
+						{
+							stateIndex2 = n;
+							done2 = TRUE;
+						}
+						if(done1 && done2)
+						{
+							break;
+						}
+					}
+					rates(entryCounter) = state[stateIndex1]*blockImmigrationRates(i, j);
+					transitions(entryCounter, stateIndex1) = -1;
+					transitions(entryCounter, stateIndex2) = 1;
+					entryCounter++;
+				}
+				ss_typeFrom.str("");
+				ss_typeFrom.clear();
+				ss_typeTo.str("");
+				ss_typeTo.clear();
+				ss_typeFrom_short.str("");
+				ss_typeFrom_short.clear();
+				ss_typeTo_short.str("");
+				ss_typeTo_short.clear();
+
+				//Do Unmated females
+				ss_typeFrom << types[x] << "_f_Unmated.Block_" << i + 1;
+				thisType[0] = ss_typeFrom.str();
+				ss_typeFrom_short << types[x] << "_f_Unmated";
+				thisType_short[0] = ss_typeFrom_short.str();
+				ss_typeTo << types[x]  << "_f_Unmated.Block_" << j + 1;
+				thisType[1] = ss_typeTo.str();
+				ss_typeTo_short << types[x]  << "_f_Unmated";
+				thisType_short[1] = ss_typeTo_short.str();
+				
+				
+				if(blockImmigrationRates(i, j) != 0.0 && thisType_short[0] == thisType_short[1])
+				{
+					done1 = FALSE;
+					done2 = FALSE;
+					for(int n = 0; n < stateNames.size(); n++)
+					{
+						if(stateNames(n) == thisType[0])
+						{
+							stateIndex1 = n;
+							done1 = TRUE;
+						}
+						if(stateNames(n) == thisType[1])
+						{
+							stateIndex2 = n;
+							done2 = TRUE;
+						}
+						if(done1 && done2)
+						{
+							break;
+						}
+					}
+					rates(entryCounter) = state[stateIndex1]*blockImmigrationRates(i, j);
+					transitions(entryCounter, stateIndex1) = -1;
+					transitions(entryCounter, stateIndex2) = 1;
+					entryCounter++;
+				}
+				ss_typeFrom.str("");
+				ss_typeFrom.clear();
+				ss_typeTo.str("");
+				ss_typeTo.clear();
+				ss_typeFrom_short.str("");
+				ss_typeFrom_short.clear();
+				ss_typeTo_short.str("");
+				ss_typeTo_short.clear();
+				for(int y = 0; y < numTypes; y++)
+				{
+					//Do mated females
+					ss_typeFrom << types[x] << "_f_" << types[y] << ".Block_" << i + 1;
+					thisType[0] = ss_typeFrom.str();
+					ss_typeFrom_short << types[x] << "_f_" << types[y];
+					thisType_short[0] = ss_typeFrom_short.str();
+					ss_typeTo << types[x]  << "_f_" << types[y] << ".Block_" << j + 1;
+					thisType[1] = ss_typeTo.str();
+					ss_typeTo_short << types[x] << "_f_" << types[y];
+					thisType_short[1] = ss_typeTo_short.str();
+					
+					if(blockImmigrationRates(i, j) != 0.0 && thisType_short[0] == thisType_short[1])
+					{
+						done1 = FALSE;
+						done2 = FALSE;
+						for(int n = 0; n < stateNames.size(); n++)
+						{
+							if(stateNames(n) == thisType[0])
+							{
+								stateIndex1 = n;
+								done1 = TRUE;
+							}
+							if(stateNames(n) == thisType[1])
+							{
+								stateIndex2 = n;
+								done2 = TRUE;
+							}
+							if(done1 && done2)
+							{
+								break;
+							}
+						}
+						rates(entryCounter) = state[stateIndex1]*blockImmigrationRates(i, j);
+						transitions(entryCounter, stateIndex1) = -1;
+						transitions(entryCounter, stateIndex2) = 1;
+						entryCounter++;
+					}
+					ss_typeFrom.str("");
+					ss_typeFrom.clear();
+					ss_typeTo.str("");
+					ss_typeTo.clear();
+					ss_typeFrom_short.str("");
+					ss_typeFrom_short.clear();
+					ss_typeTo_short.str("");
+					ss_typeTo_short.clear();
+				}
+			}
+		}
+	}
+	RcppOutput["rates"] = rates;
+	RcppOutput["transitions"] = transitions;
+	return Rcpp::wrap(RcppOutput);
+}
+
+
+// [[Rcpp::export]]
+Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::NumericMatrix R_blockImmigrationRates, Rcpp::CharacterVector R_types, Rcpp::List R_paramList,  Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector maxSize, bool store = true)
+{
+	Rcpp::List RcppOutput;
+	Rcpp::List stateList = Rcpp::clone(R_stateList);
+	Rcpp::NumericMatrix blockImmigrationRates = Rcpp::clone(R_blockImmigrationRates);
+	
+	Rcpp::List paramList = Rcpp::clone(R_paramList);
+	Rcpp::NumericVector startTime = Rcpp::clone(R_startTime);
+	Rcpp::NumericVector endTime = Rcpp::clone(R_endTime);
+	Rcpp::CharacterVector types = Rcpp::clone(R_types);
+	
+	Rcpp::NumericVector exampleState;
+	Rcpp::NumericVector totalRate(1);
+	
+	Rcpp::CharacterVector thisType(1);
+	
+	int numBlocks = stateList.size();
+	int stateLengths [numBlocks];
+	int fromIndices [numBlocks];
+	int toIndices [numBlocks];
+	
+	int numCols = 0;
+	int numTransitions;
+	int numTypes = types.size();
+	int n;
+	for(int i = 0; i < numBlocks; i++)
+	{
+		exampleState = stateList[i];
+		stateLengths[i] = exampleState.size();
+		if(i == 0)
+		{
+			fromIndices[i] = 0;
+			toIndices[i] = stateLengths[i] - 1;
+		}
+		else
+		{
+			fromIndices[i] = toIndices[i - 1] + 1;
+			toIndices[i] = fromIndices[i] + stateLengths[i] - 1;
+		}
+		numCols += exampleState.size();
+		Rcpp::NumericVector thisParams = paramList[i];
+		n = (int) round(thisParams["gamma_shape"]);
+		numTransitions += numTypes*2 + numTypes*(numTypes + 1)*2 + numTypes*n;
+		
+	}
+	Rcpp::NumericVector state(numCols);
+	Rcpp::CharacterVector stateNames(numCols);
+	for(int i = 0; i < numBlocks; i++)
+	{
+		Rcpp::NumericVector thisState = stateList[i];
+		Rcpp::CharacterVector theseStateNames = thisState.attr("names");
+		for(int j = 0; j < theseStateNames.size(); j++)
+		{
+			std::stringstream ss_names;
+			ss_names << theseStateNames[j] << ".Block_" << j;
+			stateNames(fromIndices[i] + j) = ss_names.str();
+		}
+	}
+	
+	Rcpp::NumericMatrix storeStates_all(maxSize[0], numCols);
+	Rcpp::NumericMatrix storeTimes_all(1, maxSize[0]);
+	Rcpp::NumericMatrix transitions(numTransitions*numBlocks, numCols);
+	Rcpp::NumericVector rates(numTransitions*numBlocks);
+	
+	double cumulativeTime = startTime[0];
+	int fromIndex;
+	int toIndex;
+	int counter = 0;
+	
+	//Put the starting state into the output matrices
+	for(int i = 0; i < numBlocks; i++)
+	{
+		Rcpp::NumericVector thisState = stateList[i];
+		Rcpp::NumericVector params = paramList[i];
+		for(int j = 0; j < numCols; j++)
+		{
+			state(fromIndices[i] + j) = thisState(j);
+			storeStates_all(counter, fromIndices[i] + j) = thisState(j);
+		}
+	}
+	storeTimes_all(1, counter) = cumulativeTime;
+	counter++;
+	
+	//Start to simulate from the metapopulation model
+	while(cumulativeTime < endTime[0])
+	{
+		bool allZero = TRUE;
+		for(int i = 0; i < numCols; i++)
+		{
+			if(storeStates_all((counter - 1), i) != 0.0)
+			{
+				allZero = FALSE;
+				break;
+			}
+		}
+		if(allZero)
+		{
+			if(store == true)
+			{
+				RcppOutput["states"] = storeStates_all(Range(0, counter - 1), Range(0, numCols - 1));
+				RcppOutput["times"] = storeTimes_all(Range(0, 0), Range(0, counter - 1));
+				return Rcpp::wrap(RcppOutput);
+			}
+			else
+			{
+				RcppOutput["states"] = storeStates_all((counter - 1), _);
+				return Rcpp::wrap(RcppOutput);
+			}
+		}
+		rates = rates*0.0;
+		transitions = transitions*0.0;
+		int rateCounter;
+		int rateLength;
+		for(int i = 0; i < numBlocks; i++)
+		{
+			Rcpp::NumericVector thisParams = paramList[i];
+			Rcpp::NumericVector thisState(stateLengths[i]);
+			for(int r = fromIndices[i]; r <= toIndices[i]; r++)
+			{
+				thisState = storeStates_all(counter - 1, r);
+			}
+			Rcpp::List transitionInfo = getRates_cpp(thisState, thisParams, types);
+			Rcpp::NumericVector theseRates = transitionInfo["rates"];
+			rateCounter = 0;
+			rateLength = theseRates.size();
+			Rcpp::NumericMatrix theseTransitions = transitionInfo["transitions"];
+			for(int r = 0; r < theseTransitions.nrow(); r++)
+			{
+				rates(rateCounter + r) = theseRates(r);
+				for(int c = 0; c < theseTransitions.ncol(); c++)
+				{
+					transitions(rateCounter + r, fromIndex + c) = theseTransitions(r, c);
+				}
+			}
+			rateCounter = rateCounter + rateLength;
+		}
+		
+		//Get immigration rates
+		Rcpp::List immigration = getImmigrationRates_cpp(blockImmigrationRates, types, state);
+		Rcpp::NumericMatrix immigrationTransitions = immigration["transitions"];
+		Rcpp::NumericVector immigrationRates = immigration["rates"];
+		
+		Rcpp::NumericVector allRates(rates.size() + immigrationRates.size());
+		Rcpp::NumericMatrix allTransitions(rates.size() + immigrationRates.size(), numCols);
+		
+		for(int i = 0; i < rates.size(); i++)
+		{
+			allRates(i) = rates(i);
+			for(int j = 0; j < numCols; j++)
+			{
+				allTransitions(i, j) = transitions(i, j);
+			}
+		}
+		for(int i = 0; i < immigrationRates.size(); i++)
+		{
+			allRates(rates.size() + i) = immigrationRates(i);
+			for(int j = 0; j < numCols; j++)
+			{
+				allTransitions(rates.size() + i, j) = immigrationTransitions(i, j);
+			}
+		}
+
+		Rcpp::NumericVector cumulativeRates = cumsum(allRates);
+		totalRate[0] = sum(allRates);
+		
+		Rcpp::NumericVector timeStep = rexp(1, totalRate[0]);
+
+		cumulativeTime = cumulativeTime + timeStep[0];
+		Rcpp::NumericVector u = runif(1)*totalRate[0];
+		int ind;
+		for(int i = -1; i < (cumulativeRates.length() - 1); i++)
+		{
+			if(i == -1)
+			{
+				if(u[0] > 0 & u[0] < cumulativeRates[0])
+				{
+					ind = 0;
+					break;
+				}
+			}
+			else
+			{
+				if(u[0] > cumulativeRates[i] & u[0] < cumulativeRates[i + 1])
+				{
+					ind = i + 1;
+					break;
+				}
+			}
+		}
+		
+		if(cumulativeTime < endTime[0])
+		{
+			for(int i = 0; i < numCols; i++)
+			{
+				state[i] = state[i] + allTransitions(ind, i);
+			}
+			if(store == true)
+			{
+				counter = counter + 1;
+				storeTimes_all(0, counter) = cumulativeTime;
+				storeStates_all(counter, _) = state;
+			}
+		
+		}
+		if(storeStates_all.nrow() == (counter + 1))
+		{
+			Rcpp::NumericMatrix storeTimes_temp(1, storeStates_all.nrow() + (int) maxSize[0]);
+			Rcpp::NumericMatrix storeStates_temp(storeStates_all.nrow() + (int) maxSize[0], numCols);
+			for(int i = 0; i < (counter + 1); i++)
+			{
+				storeTimes_temp(0, i) = storeTimes_all(0, i);
+				for(int j = 0; j < numCols; j++)
+				{
+					storeTimes_temp(i, j) = storeStates_all(i, j);
+				}
+			}
+			storeTimes_all = storeTimes_temp;
+			storeStates_all = storeStates_temp;
+		}
+	}
+
+	if(store == true)
+	{
+		RcppOutput["states"] = storeStates_all(Range(0, counter), Range(0, numCols - 1));
+		RcppOutput["names"] = stateNames;
+		RcppOutput["times"] = storeTimes_all(Range(0, 0), Range(0, counter));
+		
+		return Rcpp::wrap(RcppOutput);
+	}
+	else
+	{
+		RcppOutput["states"] = state;
+		RcppOutput["names"] = stateNames;
+		return Rcpp::wrap(RcppOutput);
+	}
+}
+

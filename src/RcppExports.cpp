@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // rate_m_cpp
 Rcpp::List rate_m_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector maleTypePrefix);
-RcppExport SEXP debugIIT_rate_m_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP maleTypePrefixSEXP) {
+RcppExport SEXP _debugIIT_rate_m_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP maleTypePrefixSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // rate_f_cpp
 Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector femaleTypePrefix, Rcpp::CharacterVector mateTypeSuffix, Rcpp::CharacterVector allMateTypes);
-RcppExport SEXP debugIIT_rate_f_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP femaleTypePrefixSEXP, SEXP mateTypeSuffixSEXP, SEXP allMateTypesSEXP) {
+RcppExport SEXP _debugIIT_rate_f_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP femaleTypePrefixSEXP, SEXP mateTypeSuffixSEXP, SEXP allMateTypesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -35,7 +35,7 @@ END_RCPP
 }
 // rate_imm_cpp
 Rcpp::List rate_imm_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector immatureType, Rcpp::NumericVector immatureClassNumber, Rcpp::CharacterVector allImmatureTypes);
-RcppExport SEXP debugIIT_rate_imm_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP immatureTypeSEXP, SEXP immatureClassNumberSEXP, SEXP allImmatureTypesSEXP) {
+RcppExport SEXP _debugIIT_rate_imm_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP immatureTypeSEXP, SEXP immatureClassNumberSEXP, SEXP allImmatureTypesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -50,7 +50,7 @@ END_RCPP
 }
 // getRates_cpp
 Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcpp::CharacterVector allPrefixTypes);
-RcppExport SEXP debugIIT_getRates_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP allPrefixTypesSEXP) {
+RcppExport SEXP _debugIIT_getRates_cpp(SEXP stateSEXP, SEXP paramsSEXP, SEXP allPrefixTypesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -62,8 +62,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // simulateCTMC_cpp
-Rcpp::List simulateCTMC_cpp(Rcpp::NumericVector R_state, Rcpp::CharacterVector R_types, Rcpp::NumericVector R_params, Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector maxSize, bool store);
-RcppExport SEXP debugIIT_simulateCTMC_cpp(SEXP R_stateSEXP, SEXP R_typesSEXP, SEXP R_paramsSEXP, SEXP R_startTimeSEXP, SEXP R_endTimeSEXP, SEXP maxSizeSEXP, SEXP storeSEXP) {
+Rcpp::List simulateCTMC_cpp(Rcpp::NumericVector R_state, Rcpp::CharacterVector R_types, Rcpp::NumericVector R_params, Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector R_maxSize, bool store);
+RcppExport SEXP _debugIIT_simulateCTMC_cpp(SEXP R_stateSEXP, SEXP R_typesSEXP, SEXP R_paramsSEXP, SEXP R_startTimeSEXP, SEXP R_endTimeSEXP, SEXP R_maxSizeSEXP, SEXP storeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -72,19 +72,52 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R_params(R_paramsSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R_startTime(R_startTimeSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R_endTime(R_endTimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R_maxSize(R_maxSizeSEXP);
+    Rcpp::traits::input_parameter< bool >::type store(storeSEXP);
+    rcpp_result_gen = Rcpp::wrap(simulateCTMC_cpp(R_state, R_types, R_params, R_startTime, R_endTime, R_maxSize, store));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getImmigrationRates_cpp
+Rcpp::List getImmigrationRates_cpp(Rcpp::NumericMatrix R_blockImmigrationRates, Rcpp::CharacterVector R_types, Rcpp::NumericVector R_state);
+RcppExport SEXP _debugIIT_getImmigrationRates_cpp(SEXP R_blockImmigrationRatesSEXP, SEXP R_typesSEXP, SEXP R_stateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type R_blockImmigrationRates(R_blockImmigrationRatesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type R_types(R_typesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R_state(R_stateSEXP);
+    rcpp_result_gen = Rcpp::wrap(getImmigrationRates_cpp(R_blockImmigrationRates, R_types, R_state));
+    return rcpp_result_gen;
+END_RCPP
+}
+// simulateMetapopulationCTMC_cpp
+Rcpp::List simulateMetapopulationCTMC_cpp(Rcpp::List R_stateList, Rcpp::NumericMatrix R_blockImmigrationRates, Rcpp::CharacterVector R_types, Rcpp::List R_paramList, Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector maxSize, bool store);
+RcppExport SEXP _debugIIT_simulateMetapopulationCTMC_cpp(SEXP R_stateListSEXP, SEXP R_blockImmigrationRatesSEXP, SEXP R_typesSEXP, SEXP R_paramListSEXP, SEXP R_startTimeSEXP, SEXP R_endTimeSEXP, SEXP maxSizeSEXP, SEXP storeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type R_stateList(R_stateListSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type R_blockImmigrationRates(R_blockImmigrationRatesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::CharacterVector >::type R_types(R_typesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type R_paramList(R_paramListSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R_startTime(R_startTimeSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type R_endTime(R_endTimeSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type maxSize(maxSizeSEXP);
     Rcpp::traits::input_parameter< bool >::type store(storeSEXP);
-    rcpp_result_gen = Rcpp::wrap(simulateCTMC_cpp(R_state, R_types, R_params, R_startTime, R_endTime, maxSize, store));
+    rcpp_result_gen = Rcpp::wrap(simulateMetapopulationCTMC_cpp(R_stateList, R_blockImmigrationRates, R_types, R_paramList, R_startTime, R_endTime, maxSize, store));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"debugIIT_rate_m_cpp", (DL_FUNC) &debugIIT_rate_m_cpp, 3},
-    {"debugIIT_rate_f_cpp", (DL_FUNC) &debugIIT_rate_f_cpp, 5},
-    {"debugIIT_rate_imm_cpp", (DL_FUNC) &debugIIT_rate_imm_cpp, 5},
-    {"debugIIT_getRates_cpp", (DL_FUNC) &debugIIT_getRates_cpp, 3},
-    {"debugIIT_simulateCTMC_cpp", (DL_FUNC) &debugIIT_simulateCTMC_cpp, 7},
+    {"_debugIIT_rate_m_cpp", (DL_FUNC) &_debugIIT_rate_m_cpp, 3},
+    {"_debugIIT_rate_f_cpp", (DL_FUNC) &_debugIIT_rate_f_cpp, 5},
+    {"_debugIIT_rate_imm_cpp", (DL_FUNC) &_debugIIT_rate_imm_cpp, 5},
+    {"_debugIIT_getRates_cpp", (DL_FUNC) &_debugIIT_getRates_cpp, 3},
+    {"_debugIIT_simulateCTMC_cpp", (DL_FUNC) &_debugIIT_simulateCTMC_cpp, 7},
+    {"_debugIIT_getImmigrationRates_cpp", (DL_FUNC) &_debugIIT_getImmigrationRates_cpp, 3},
+    {"_debugIIT_simulateMetapopulationCTMC_cpp", (DL_FUNC) &_debugIIT_simulateMetapopulationCTMC_cpp, 8},
     {NULL, NULL, 0}
 };
 

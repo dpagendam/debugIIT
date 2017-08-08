@@ -2,22 +2,30 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 rate_m_cpp <- function(state, params, maleTypePrefix) {
-    .Call('debugIIT_rate_m_cpp', PACKAGE = 'debugIIT', state, params, maleTypePrefix)
+    .Call('_debugIIT_rate_m_cpp', PACKAGE = 'debugIIT', state, params, maleTypePrefix)
 }
 
 rate_f_cpp <- function(state, params, femaleTypePrefix, mateTypeSuffix, allMateTypes) {
-    .Call('debugIIT_rate_f_cpp', PACKAGE = 'debugIIT', state, params, femaleTypePrefix, mateTypeSuffix, allMateTypes)
+    .Call('_debugIIT_rate_f_cpp', PACKAGE = 'debugIIT', state, params, femaleTypePrefix, mateTypeSuffix, allMateTypes)
 }
 
 rate_imm_cpp <- function(state, params, immatureType, immatureClassNumber, allImmatureTypes) {
-    .Call('debugIIT_rate_imm_cpp', PACKAGE = 'debugIIT', state, params, immatureType, immatureClassNumber, allImmatureTypes)
+    .Call('_debugIIT_rate_imm_cpp', PACKAGE = 'debugIIT', state, params, immatureType, immatureClassNumber, allImmatureTypes)
 }
 
 getRates_cpp <- function(state, params, allPrefixTypes) {
-    .Call('debugIIT_getRates_cpp', PACKAGE = 'debugIIT', state, params, allPrefixTypes)
+    .Call('_debugIIT_getRates_cpp', PACKAGE = 'debugIIT', state, params, allPrefixTypes)
 }
 
-simulateCTMC_cpp <- function(R_state, R_types, R_params, R_startTime, R_endTime, maxSize, store = TRUE) {
-    .Call('debugIIT_simulateCTMC_cpp', PACKAGE = 'debugIIT', R_state, R_types, R_params, R_startTime, R_endTime, maxSize, store)
+simulateCTMC_cpp <- function(R_state, R_types, R_params, R_startTime, R_endTime, R_maxSize, store = TRUE) {
+    .Call('_debugIIT_simulateCTMC_cpp', PACKAGE = 'debugIIT', R_state, R_types, R_params, R_startTime, R_endTime, R_maxSize, store)
+}
+
+getImmigrationRates_cpp <- function(R_blockImmigrationRates, R_types, R_state) {
+    .Call('_debugIIT_getImmigrationRates_cpp', PACKAGE = 'debugIIT', R_blockImmigrationRates, R_types, R_state)
+}
+
+simulateMetapopulationCTMC_cpp <- function(R_stateList, R_blockImmigrationRates, R_types, R_paramList, R_startTime, R_endTime, maxSize, store = TRUE) {
+    .Call('_debugIIT_simulateMetapopulationCTMC_cpp', PACKAGE = 'debugIIT', R_stateList, R_blockImmigrationRates, R_types, R_paramList, R_startTime, R_endTime, maxSize, store)
 }
 

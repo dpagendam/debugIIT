@@ -31,13 +31,13 @@
 \section{Model Summary}
 
 \begin{itemize}
-\item We model the system as a well mixed population with $N$ total niches or spaces in it (i.e the entire population cannot exceed $N$ individuals).  In general $N$ should be made large enough to easily accommodate the natural population (all life stages) and the overburden of Wolbachia infected males (and accidental females).  In the numerical work so far, I've used $N= 10,000$.  The actual value used doesn't matter, we just have to pick something large so that the state variables don't run into the ceiling.
-\item There is a stable population equlibirium for mosquitoes, $K_{adult}$ as a result of density dependent effects that occur amongst immature (e.g. larval) stages.
-\item Male mosquitoes die at some rate $\mu_m$,
-\item Female mosquitoes die at some rate $\mu_f$.
-\item Female mosquitoes produce future adults (i.e. those eggs that will definitely survive to become reproducing adults) at rate $\lambda$.
-\item We model immature mosquitoes as passing through a series of $n$ (integer) pseudo-developmental stages.  The rate, $\gamma$, at which an immature transitions from one of these states to the next is treated as equivalent for all stages.
-\item Wolbachia-infected males have a mating competitiveness coefficient (Fried's index) of $c (> 0)$ where $c=1$ corresponds to equal competitiveness with wildtype males, $c < 1$ means they are less-competitive and $c > 1$ means they are more competitive for mates.
+\item We model the system as a well mixed population.
+\item There is a stable population equlibirium for mosquitoes, $K_{eq}$ as a result of density dependent effects that occur amongst immature (e.g. larval) stages.
+\item Male mosquitoes die at some rate $\mu_m$ (this parameter can be allowed to vary between types of Wolbachia infection),
+\item Female mosquitoes die at some rate $\mu_f$ (this parameter can be allowed to vary between types of Wolbachia infection).
+\item Female mosquitoes produce future adults (i.e. those eggs that will definitely survive to become reproducing adults) at rate $\lambda$.  The type of future adults produced is dictated by a single mating event and the type of male by which the female was mated.
+\item We model immature mosquitoes (i.e. future adults) as passing through a series of $n$ (integer) pseudo-developmental stages.  The rate, $\gamma$, at which an immature transitions from one of these states to the next is treated as equivalent for all stages.
+\item Wolbachia-infected males have a mating competitiveness coefficient (Fried's index) of $c (> 0)$, where $c=1$ corresponds to equal competitiveness with wildtype males, $c < 1$ means they are less-competitive and $c > 1$ means they are more competitive for mates.
 \end{itemize}
 
 We model this system as a continuous-time Markov chain (CTMC) having a state vector that contains as elements: 
@@ -71,7 +71,13 @@ $$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{ \gamma 
 \\
 \\
 \\
-\noindent {\it{Mating of an unmated female adult of type $X \in \{Wld, WMel, WAlb \}$ by a male of type $Y \in \{ Wld, WMel, WAlb \}$ :}}
+\noindent {\it{Mating of an unmated female adult of type $X \in \{Wld, WMel, WAlb \}$ by a male of type $Y \in \{ Wld, WMel, WAlb \}$:}}
+
+There are two scenarios that can be explored here.  The first is where the rate at which females are mated is not dependent upon the density of males in the landscape.  In this case, the rate is:
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{\eta c_Y F_X}{H}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_{X \times Y}\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} F_X \textup{''} , -1),$$
+
+Alternatively, if we assume that females are mated at a rate that is proportional to the density of males (i.e density dependent mating), then the rate is:
+
 $$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{\eta c_Y F_X M_Y}{H}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_{X \times Y}\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} F_X \textup{''} , -1),$$
 
 \noindent where $c_Y$ $(> 0)$ is the mating competitiveness (Fried's Index) of type $Y$ males relative to wildtype males ($c_{Wld} = 1$); $\eta$ is the per capita mating rate of females; and $H$ is the number of houses in the population (used to make the rate at which matings occur, scale with the spatial dimension of habitat (area could be used instead of houses if desired).

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.12.16)  28 JUL 2017 13:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.12.16)  4 AUG 2017 17:44
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -290,12 +290,12 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 34.
-LaTeX Font Info:    Try loading font information for U+msa on input line 34.
+LaTeX Font Info:    Try loading font information for U+msa on input line 35.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 34.
+LaTeX Font Info:    Try loading font information for U+msb on input line 35.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -349,71 +349,47 @@ Underfull \hbox (badness 10000) in paragraph at lines 70--75
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 77--82
+Underfull \hbox (badness 10000) in paragraph at lines 83--88
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 77--82
+Underfull \hbox (badness 10000) in paragraph at lines 83--88
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 84--89
+Underfull \hbox (badness 10000) in paragraph at lines 90--95
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 84--89
+Underfull \hbox (badness 10000) in paragraph at lines 90--95
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 91--96
+Underfull \hbox (badness 10000) in paragraph at lines 97--102
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 91--96
+Underfull \hbox (badness 10000) in paragraph at lines 97--102
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 98--103
+Underfull \hbox (badness 10000) in paragraph at lines 104--109
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 98--103
-
- []
-
-
-Overfull \hbox (39.55496pt too wide) detected at line 103
-\OML/cmm/m/it/10 q\OT1/cmr/m/n/10 ([] \OMS/cmsy/m/n/10 ! [] \OT1/cmr/m/n/10 + [
-]) = \OML/cmm/m/it/10 ^^U\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 F[] \OT1/cmr/m/n/10 
-+ \OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ;  [] \OT1/cmr/m/n/10
- = \OML/cmm/m/it/10 z\OT1/cmr/m/n/10 ([]\OML/cmm/m/it/10 ; []I[][]; \OT1/cmr/m/
-n/10 1)
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 105--109
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 105--109
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 105--109
+Underfull \hbox (badness 10000) in paragraph at lines 104--109
 
  []
 
 [3]
-Overfull \hbox (28.99521pt too wide) detected at line 111
+Overfull \hbox (39.55496pt too wide) detected at line 109
 \OML/cmm/m/it/10 q\OT1/cmr/m/n/10 ([] \OMS/cmsy/m/n/10 ! [] \OT1/cmr/m/n/10 + [
 ]) = \OML/cmm/m/it/10 ^^U\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 F[] \OT1/cmr/m/n/10 
 + \OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ;  [] \OT1/cmr/m/n/10
@@ -422,85 +398,109 @@ n/10 1)
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 113--118
+Underfull \hbox (badness 10000) in paragraph at lines 111--115
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 113--118
+Underfull \hbox (badness 10000) in paragraph at lines 111--115
 
  []
 
 
-Overfull \hbox (18.8427pt too wide) in paragraph at lines 113--118
+Underfull \hbox (badness 10000) in paragraph at lines 111--115
+
+ []
+
+
+Overfull \hbox (28.99521pt too wide) detected at line 117
+\OML/cmm/m/it/10 q\OT1/cmr/m/n/10 ([] \OMS/cmsy/m/n/10 ! [] \OT1/cmr/m/n/10 + [
+]) = \OML/cmm/m/it/10 ^^U\OT1/cmr/m/n/10 (\OML/cmm/m/it/10 F[] \OT1/cmr/m/n/10 
++ \OML/cmm/m/it/10 F[]\OT1/cmr/m/n/10 )[]\OML/cmm/m/it/10 ;  [] \OT1/cmr/m/n/10
+ = \OML/cmm/m/it/10 z\OT1/cmr/m/n/10 ([]\OML/cmm/m/it/10 ; []I[][]; \OT1/cmr/m/
+n/10 1)
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 119--124
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 119--124
+
+ []
+
+
+Overfull \hbox (18.8427pt too wide) in paragraph at lines 119--124
 \OT1/cmr/m/it/10 Progression of a ju-ve-nile of type $\OML/cmm/m/it/10 X \OMS/c
 msy/m/n/10 2 f\OML/cmm/m/it/10 Wld; WMel; WAlb\OMS/cmsy/m/n/10 g$ \OT1/cmr/m/it
 /10 from pseudo-development
  []
 
 [4]
-Underfull \hbox (badness 10000) in paragraph at lines 147--154
+Underfull \hbox (badness 10000) in paragraph at lines 153--160
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 147--154
+Underfull \hbox (badness 10000) in paragraph at lines 153--160
 
  []
 
 [5]
-Underfull \hbox (badness 10000) in paragraph at lines 166--173
+Underfull \hbox (badness 10000) in paragraph at lines 172--179
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 166--173
+Underfull \hbox (badness 10000) in paragraph at lines 172--179
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 166--173
+Underfull \hbox (badness 10000) in paragraph at lines 172--179
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 178--185
+Underfull \hbox (badness 10000) in paragraph at lines 184--191
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 178--185
+Underfull \hbox (badness 10000) in paragraph at lines 184--191
 
  []
 
-[6] (./obj.aux) ) 
+[6] [7] (./obj.aux) ) 
 Here is how much of TeX's memory you used:
  3602 strings out of 493089
  47630 string characters out of 6134841
- 115815 words of memory out of 5000000
+ 114815 words of memory out of 5000000
  7018 multiletter control sequences out of 15000+600000
  9644 words of font info for 36 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,11n,26p,1038b,191s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmbx10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmex10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmmi5.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mmi7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
-ib10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12
-.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.p
-fb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb>
-</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><
-/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></u
-sr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr
-/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on obj.pdf (6 pages, 183066 bytes).
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmbx10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmex10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmmi5.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmmi7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmmib10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+17.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.
+pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.p
+fb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb
+></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb><
+/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
+Output written on obj.pdf (7 pages, 182530 bytes).
 PDF statistics:
- 83 PDF objects out of 1000 (max. 8388607)
- 59 compressed objects within 1 object stream
+ 88 PDF objects out of 1000 (max. 8388607)
+ 63 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
