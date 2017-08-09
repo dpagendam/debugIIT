@@ -423,7 +423,6 @@ Rcpp::List getRates_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, R
 			}
 		}
 	}
-	
 	RcppOutput["rates"] = allRates;
 	RcppOutput["transitions"] = allTransitions;
 	return(RcppOutput);
@@ -790,6 +789,8 @@ Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::Numeric
 	Rcpp::NumericVector endTime = Rcpp::clone(R_endTime);
 	Rcpp::CharacterVector types = Rcpp::clone(R_types);
 	
+	Rcpp::List stateNamesList;
+	
 	Rcpp::NumericVector exampleState;
 	Rcpp::NumericVector totalRate(1);
 	
@@ -822,7 +823,6 @@ Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::Numeric
 		Rcpp::NumericVector thisParams = paramList[i];
 		n = (int) round(thisParams["gamma_shape"]);
 		numTransitions += numTypes*2 + numTypes*(numTypes + 1)*2 + numTypes*n;
-		
 	}
 	Rcpp::NumericVector state(numCols);
 	Rcpp::CharacterVector stateNames(numCols);
@@ -830,6 +830,7 @@ Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::Numeric
 	{
 		Rcpp::NumericVector thisState = stateList[i];
 		Rcpp::CharacterVector theseStateNames = thisState.attr("names");
+		stateNamesList[i] = theseStateNames;
 		for(int j = 0; j < theseStateNames.size(); j++)
 		{
 			std::stringstream ss_names;
@@ -837,31 +838,29 @@ Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::Numeric
 			stateNames(fromIndices[i] + j) = ss_names.str();
 		}
 	}
-	
 	Rcpp::NumericMatrix storeStates_all(maxSize[0], numCols);
 	Rcpp::NumericMatrix storeTimes_all(1, maxSize[0]);
 	Rcpp::NumericMatrix transitions(numTransitions*numBlocks, numCols);
 	Rcpp::NumericVector rates(numTransitions*numBlocks);
-	
 	double cumulativeTime = startTime[0];
 	int fromIndex;
 	int toIndex;
 	int counter = 0;
-	
+	int colCounter = 0;
 	//Put the starting state into the output matrices
 	for(int i = 0; i < numBlocks; i++)
 	{
 		Rcpp::NumericVector thisState = stateList[i];
 		Rcpp::NumericVector params = paramList[i];
-		for(int j = 0; j < numCols; j++)
+		for(int j = 0; j < stateLengths[i]; j++)
 		{
-			state(fromIndices[i] + j) = thisState(j);
-			storeStates_all(counter, fromIndices[i] + j) = thisState(j);
+			state(colCounter) = thisState(j);
+			storeStates_all(counter, colCounter) = thisState(j);
+			colCounter++;
 		}
 	}
 	storeTimes_all(1, counter) = cumulativeTime;
 	counter++;
-	
 	//Start to simulate from the metapopulation model
 	while(cumulativeTime < endTime[0])
 	{
@@ -898,15 +897,20 @@ Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::Numeric
 			Rcpp::NumericVector thisState(stateLengths[i]);
 			for(int r = fromIndices[i]; r <= toIndices[i]; r++)
 			{
-				thisState = storeStates_all(counter - 1, r);
+				thisState(r - fromIndices[i]) = storeStates_all(counter - 1, r);
 			}
+			Rprintf(" c3.6 ");
+			thisState.attr("names"); = (Rcpp::CharacterVector) stateNamesList[i];
 			Rcpp::List transitionInfo = getRates_cpp(thisState, thisParams, types);
+			Rprintf(" c3.7 ");
 			Rcpp::NumericVector theseRates = transitionInfo["rates"];
 			rateCounter = 0;
 			rateLength = theseRates.size();
 			Rcpp::NumericMatrix theseTransitions = transitionInfo["transitions"];
+			Rprintf(" c3.8 ");
 			for(int r = 0; r < theseTransitions.nrow(); r++)
 			{
+				Rprintf(" c4 ");
 				rates(rateCounter + r) = theseRates(r);
 				for(int c = 0; c < theseTransitions.ncol(); c++)
 				{
@@ -999,7 +1003,7 @@ Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::Numeric
 			storeStates_all = storeStates_temp;
 		}
 	}
-
+	Rprintf(" D ");
 	if(store == true)
 	{
 		RcppOutput["states"] = storeStates_all(Range(0, counter), Range(0, numCols - 1));

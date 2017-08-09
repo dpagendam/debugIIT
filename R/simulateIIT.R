@@ -19,9 +19,8 @@
 #' @export
 
 
-simulateIIT = function(params, Wld_m, Wld_f_Unmated, Wld_f_Wld, stochasticInitial = TRUE, numReleased = NULL, ratioReleased = NULL, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, initState = NULL, maxSize = 1000000)
+simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_f_Wld, stochasticInitial = TRUE, numReleased = NULL, ratioReleased = NULL, releaseMixture, contaminationProb, propTypes, releaseTimes, maxTime, initState = NULL, maxSize = 1000000)
 {
-	
 	times = c(releaseTimes, maxTime)
 	params["theta"] = params["mu_m_Wld"]/params["mu_f_Wld"]
 	n = round(params["gamma_shape"])
@@ -158,12 +157,10 @@ simulateIIT = function(params, Wld_m, Wld_f_Unmated, Wld_f_Wld, stochasticInitia
 		}
 	}
 	thisRound = simulateCTMC_cpp(state, types, params, times[1], times[2], maxSize, TRUE)
-	#Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::NumericMatrix R_blockImmigrationRates, Rcpp::CharacterVector R_types, Rcpp::List R_paramList,  Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector maxSize, bool store = true)
-
 	
 	t = thisRound$times
 	state = thisRound$states
-	names(state) <- cn
+	colnames(state) <- cn
 	
 	if(length(times) > 2)
 	{
@@ -215,7 +212,6 @@ simulateIIT = function(params, Wld_m, Wld_f_Unmated, Wld_f_Wld, stochasticInitia
 				}
 			}	
 			thisRound = simulateCTMC_cpp(nextStart, types, params, times[x], times[x + 1], maxSize, TRUE)
-			#Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::NumericMatrix R_blockImmigrationRates, Rcpp::CharacterVector R_types, Rcpp::List R_paramList,  Rcpp::NumericVector R_startTime, Rcpp::NumericVector R_endTime, Rcpp::NumericVector maxSize, bool store = true)
 			t = c(t, thisRound$times)
 			state = rbind(state, thisRound$states)
 		}
