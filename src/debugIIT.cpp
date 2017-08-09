@@ -900,7 +900,7 @@ Rcpp::List simulateMetapopulationCTMC_cpp( Rcpp::List R_stateList, Rcpp::Numeric
 				thisState(r - fromIndices[i]) = storeStates_all(counter - 1, r);
 			}
 			Rprintf(" c3.6 ");
-			thisState.attr("names"); = (Rcpp::CharacterVector) stateNamesList[i];
+			thisState.attr("names") = as<Rcpp::CharacterVector> (stateNamesList[i]);
 			Rcpp::List transitionInfo = getRates_cpp(thisState, thisParams, types);
 			Rprintf(" c3.7 ");
 			Rcpp::NumericVector theseRates = transitionInfo["rates"];
