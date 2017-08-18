@@ -169,7 +169,7 @@ simulateIIT_metapopulation = function(paramsList, blockImmigrationRates, Wld_m, 
 				state[paste0(releaseTypes[i], "_f_", releaseTypes[j])] = state[paste0(releaseTypes[i], "_f_", releaseTypes[j])] + femalesMatedByTypes[j]
 			}
 		}
-		names(state) <- paste0(names(state), ".Block_", p)
+		#names(state) <- paste0(names(state), ".Block_", p)
 		state_all = c(state_all, state)
 	}
 	cn = names(state_all)
@@ -183,11 +183,12 @@ simulateIIT_metapopulation = function(paramsList, blockImmigrationRates, Wld_m, 
 	print(toInd)
 
 	thisRound =  simulateMetapopulationCTMC_cpp(stateList, blockImmigrationRates, types, paramsList, times[1], times[2], maxSize, TRUE)
-	print(thisRound)
+	print("")
+	return(thisRound)
 	print("D ");
 	t = thisRound$times
 	state_all = thisRound$states
-	colnames(state) <- cn
+	colnames(state_all) <- cn
 	
 	stateList = list()
 	for(i in 1:length(paramsList))
