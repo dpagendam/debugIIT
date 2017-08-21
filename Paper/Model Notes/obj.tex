@@ -74,13 +74,13 @@ $$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{ \gamma 
 \noindent {\it{Mating of an unmated female adult of type $X \in \{Wld, WMel, WAlb \}$ by a male of type $Y \in \{ Wld, WMel, WAlb \}$:}}
 
 There are two scenarios that can be explored here.  The first is where the rate at which females are mated is not dependent upon the density of males in the landscape.  In this case, the rate is:
-$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{\eta c_Y F_X}{H}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_{X \times Y}\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} F_X \textup{''} , -1),$$
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \eta F_X \frac{c_Y M_Y}{\sum_{t \in \mathcal{T}} c_t M_t}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_{X \times Y}\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} F_X \textup{''} , -1),$$
 
 Alternatively, if we assume that females are mated at a rate that is proportional to the density of males (i.e density dependent mating), then the rate is:
 
-$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \frac{\eta c_Y F_X M_Y}{H}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_{X \times Y}\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} F_X \textup{''} , -1),$$
+$$q(\boldsymbol{s} \rightarrow \boldsymbol{s} + \boldsymbol{v}) = \eta F_X \frac{c_Y M_Y}{\sum_{t \in \mathcal{T}} c_t M_t}\frac{\sum_{t \in \mathcal{T}} M_t}{H}, \qquad \boldsymbol{v} = z(\boldsymbol{s}, \textup{``}F_{X \times Y}\textup{''} , 1) + z(\boldsymbol{s}, \textup{``} F_X \textup{''} , -1),$$
 
-\noindent where $c_Y$ $(> 0)$ is the mating competitiveness (Fried's Index) of type $Y$ males relative to wildtype males ($c_{Wld} = 1$); $\eta$ is the per capita mating rate of females; and $H$ is the number of houses in the population (used to make the rate at which matings occur, scale with the spatial dimension of habitat (area could be used instead of houses if desired).
+\noindent where $\mathcal{T} = \{Wld, WMel, WAlb \}$, $c_Y$ $(> 0)$ is the mating competitiveness (Fried's Index) of type $Y$ males relative to wildtype males ($c_{Wld} = 1$); $\eta$ is the per capita mating rate of females; and $H$ is the number of houses in the population (used to make the rate at which matings occur, scale with the spatial dimension of habitat (area could be used instead of houses if desired).
 \\
 \\
 \\
@@ -187,13 +187,17 @@ Rearranging the second inequality allows us to obtain $\lambda$ in terms of the 
 {\bf Per Capita Mating Rate of Unmated Females}
 \\
 \\
-Noting that $c_{Wld} = 1$, we start with the third inequality:
+Assuming density dependent mating and noting that $c_{Wld} = 1$, we start with the third inequality:
 
 \begin{align*}
 \frac{1}{2}\gamma \bar{I}_{Wld, n} &= \mu_{f, Wld} \bar{F}_{Wld} + \frac{\eta \bar{F}_{Wld} M_{Wld}}{H}\\
 \eta &= \frac{H(\tfrac{1}{2} \gamma \bar{I}_{Wld, n} - \mu_f \bar{F}_{Wld})}{\bar{F}_{Wld}\bar{M}_{Wld}}\\
 \eta &= \frac{H}{\bar{M}_{Wld}} \left( \frac{\gamma\bar{I}_n (1 + \theta)}{2(1 - p_{mated}) K_{eq} \theta} - \mu_{f, Wld}\right).
 \end{align*}
+
+\noindent where mating is density independent, we obtain
+
+$$ \eta = \left( \frac{\gamma\bar{I}_n (1 + \theta)}{2(1 - p_{mated}) K_{eq} \theta} - \mu_{f, Wld}\right). $$
 
 
 \section{Simulations}

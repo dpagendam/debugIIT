@@ -8,14 +8,14 @@
 #' @return The function returns a visualisation of temporal variability in a trajectory highlighting the 2.5th, 25th, 50th, 75th and 97.5th percetiles.
 #' @export
 
-plotQuantiles = function(quantileList, times, name, col)
+plotQuantiles = function(quantileList, times, name, col, xlab = "Time", ylab = "Number", main = "")
 {
 	if(class(quantileList) != "trajectoryQuantileList")
 	{
 		stop("Input quantileList must be of class trajectoryQuantileList.  Use function trajectoryQuantiles to create this object.")
 	}
 	x = c(times, rev(times), times[1])
-	plot(times, quantileList$percentile97.5[, name], col = "white", xlab = "time", ylab = name)
+	plot(times, quantileList$percentile97.5[, name], col = "white", xlab = xlab, ylab = ylab, main = main)
 	y = c(quantileList$percentile2.5[, name], rev(quantileList$percentile97.5[, name]), quantileList$percentile2.5[, name][1])
 	polygon(x = x, y = y, col = fade(col, 50), border = NA)
 	y = c(quantileList$percentile25[, name], rev(quantileList$percentile75[, name]), quantileList$percentile25[, name][1])
