@@ -1,6 +1,6 @@
-#' @title Simulate an IIT program trajectory as a birth-death process.
+#' @title Simulate an IIT program trajectory as a Markov Population Process.
 #' 
-#' @description \code{simulateIIT} simualtes a birth-death process model for a Wolbachia IIT release and returns a (stochastic) simulated trajectory for the system.
+#' @description \code{simulateIIT} simualtes a Markov Population Process model for a Wolbachia IIT release and returns a (stochastic) simulated trajectory for the system.
 #' @param \code{params} A named parameter vector containing the model parameters.  This must include the birth rate "lambda"; the death rates of males and females "mu_m" and "mu_f"; the parameters "gamma_shape" and "gamma_rate" that govern the gamma distribution for time taken for immatures to develop from egg to adult; "K_eq" which is the number of adults we expect at equilibrium; "N_max" which is the ceiling on the number of immatures that can exist in the population at any point in time; and a Fried's index (denoted by the prefix "c_") for each type of insect in the population (e.g. "c_Wld" is the Fried's index for Wildtype males).  
 #' @param \code{Wld_m} is the number of wildtype males that are expected at time zero.
 #' @param \code{Wld_f_Unmated} is the number of unmated wildtype females that are expected in a pure wildtype population at equilibrium.
