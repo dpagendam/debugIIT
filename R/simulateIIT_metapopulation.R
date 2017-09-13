@@ -2,6 +2,7 @@
 #' 
 #' @description \code{simulateIIT} simualtes a Markov Population Process model for a Wolbachia IIT release and returns a (stochastic) simulated trajectory for the system.
 #' @param \code{paramList} A list where each item is a named parameter vector containing the model parameters for a metapopulation patch.  This must include the birth rate "lambda"; the death rates of males and females "mu_m" and "mu_f"; the parameters "gamma_shape" and "gamma_rate" that govern the gamma distribution for time taken for immatures to develop from egg to adult; "K_eq" which is the number of adults we expect at equilibrium; "N_max" which is the ceiling on the number of immatures that can exist in the population at any point in time; and a Fried's index (denoted by the prefix "c_") for each type of insect in the population (e.g. "c_Wld" is the Fried's index for Wildtype males).  
+#' @param \code{blockImmigrationRates} is a matrix of immigration rates.  The diagonal should contain zeros corresponding to no immigration from a block to itself.  Off-diagonal entries contain the individual immigration rates from the row block to the column block.
 #' @param \code{Wld_m} a numeric vector of length equal to the number of rows or columns in blockImmigrationRates and containing the number of wildtype males that are expected at time zero.
 #' @param \code{Wld_f_Unmated} a numeric vector of length equal to the number of rows or columns in blockImmigrationRates and containing the number of unmated wildtype females that are expected in a pure wildtype population at equilibrium.
 #' @param \code{Wld_f_Wld} a numeric vector of length equal to the number of rows or columns in blockImmigrationRates and containing the number of wildtype mated wildtype females that are expected in a pure wildtype population at equilibrium.
@@ -43,7 +44,7 @@ simulateIIT_metapopulation = function(paramsList, blockImmigrationRates, Wld_m, 
 			fromInd = c(fromInd, a + 1)
 			toInd = c(toInd, a + length(state))
 		}
-		cn = names(state)
+		cn_ = names(state)
 		names = names(propTypes)
 		releaseTypes = names(releaseMixture)
 		friedsIndexForReleaseMixture = rep(NA, length(releaseMixture))
@@ -178,32 +179,36 @@ simulateIIT_metapopulation = function(paramsList, blockImmigrationRates, Wld_m, 
 	{
 		stateList[[i]] = state_all[fromInd[i]:toInd[i]]
 	}
-	print("C ");
-	print(fromInd)
-	print(toInd)
+
+	stateNamesList = list()
+	for(i in 1:length(stateList))
+	{
+		stateNamesList[[i]] = names(stateList[[i]])
+	}
 
 	thisRound =  simulateMetapopulationCTMC_cpp(stateList, blockImmigrationRates, types, paramsList, times[1], times[2], maxSize, TRUE)
-	print("")
-	return(thisRound)
-	print("D ");
 	t = thisRound$times
 	state_all = thisRound$states
+	cn = thisRound$names
 	colnames(state_all) <- cn
 	
 	stateList = list()
 	for(i in 1:length(paramsList))
 	{
-		stateList[[i]] = state_all[nrow(state), fromInd[i]:toInd[i]]
+		thisBlockState = as.numeric(state_all[nrow(state_all), fromInd[i]:toInd[i]])
+		names(thisBlockState) <- stateNamesList[[i]]
+		stateList[[i]] = thisBlockState
 	}
 	
 	if(length(times) > 2)
 	{
 		for(x in 2:(length(times) - 1))
 		{
+			cat(paste0("TimeIndex: ", x, "\n"))
 			for(p in 1:length(paramsList))
 			{
+				cat(paste0("ParamsList: ", p, "\n"))
 				nextStart = stateList[[p]]
-				names(nextStart) <- cn
 				totalMalesReleased = 0
 				numMalesByType = c()
 				numReleasedByType = c()
@@ -211,7 +216,7 @@ simulateIIT_metapopulation = function(paramsList, blockImmigrationRates, Wld_m, 
 				{
 					if(!is.null(ratioReleased))
 					{
-						numReleased[p, i] = ratioReleased*nextStart[paste0("Wld_m", ".Block_", p)]
+						numReleased[p, i] = ratioReleased*nextStart["Wld_m"]
 					}
 					numReleasedOfThisType = round(numReleased[p, i]*releaseMixture[releaseTypes[i]])
 					if(numReleasedOfThisType > 0)
@@ -225,7 +230,7 @@ simulateIIT_metapopulation = function(paramsList, blockImmigrationRates, Wld_m, 
 					totalMalesReleased = totalMalesReleased + malesReleasedOfThisType
 					numMalesByType = c(numMalesByType, malesReleasedOfThisType)
 					numReleasedByType = c(numReleasedByType, numReleasedOfThisType)
-					nextStart[paste0(releaseTypes[i], "_m", ".Block_", p)] = nextStart[paste0(releaseTypes[i], "_m", ".Block_", p)] + malesReleasedOfThisType
+					nextStart[paste0(releaseTypes[i], "_m")] = nextStart[paste0(releaseTypes[i], "_m")] + malesReleasedOfThisType
 				}
 	
 				for(i in 1:length(releaseTypes))
@@ -244,19 +249,20 @@ simulateIIT_metapopulation = function(paramsList, blockImmigrationRates, Wld_m, 
 				
 					for(j in 1:length(releaseTypes))
 					{
-						nextStart[paste0(releaseTypes[i], "_f_", releaseTypes[j], ".Block_", p)] = nextStart[paste0(releaseTypes[i], "_f_", releaseTypes[j], ".Block_", p)] + femalesMatedByTypes[j]
+						nextStart[paste0(releaseTypes[i], "_f_", releaseTypes[j])] = nextStart[paste0(releaseTypes[i], "_f_", releaseTypes[j])] + femalesMatedByTypes[j]
 					}
 				}
+
+				names(nextStart) <- stateNamesList[[p]]
 				stateList[[p]] = nextStart
+				
 			}
-			
+
 			thisRound =  simulateMetapopulationCTMC_cpp(stateList, blockImmigrationRates, types, paramsList, times[x], times[x + 1], maxSize, TRUE)
-	
 			t = c(t, thisRound$times)
-			state = rbind(state, thisRound$states)
+			state_all = rbind(state_all, thisRound$states)
 		}
 	}
-	colnames(state) <- cn
-	return(list(t = t, state = state))
+	return(list(t = t, state_all = state))
 }
 

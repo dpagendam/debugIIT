@@ -12,6 +12,8 @@ simulateIIT_metapopulation(paramsList, blockImmigrationRates, Wld_m,
 \arguments{
 \item{\code{paramList}}{A list where each item is a named parameter vector containing the model parameters for a metapopulation patch.  This must include the birth rate "lambda"; the death rates of males and females "mu_m" and "mu_f"; the parameters "gamma_shape" and "gamma_rate" that govern the gamma distribution for time taken for immatures to develop from egg to adult; "K_eq" which is the number of adults we expect at equilibrium; "N_max" which is the ceiling on the number of immatures that can exist in the population at any point in time; and a Fried's index (denoted by the prefix "c_") for each type of insect in the population (e.g. "c_Wld" is the Fried's index for Wildtype males).}
 
+\item{\code{blockImmigrationRates}}{is a matrix of immigration rates.  The diagonal should contain zeros corresponding to no immigration from a block to itself.  Off-diagonal entries contain the individual immigration rates from the row block to the column block.}
+
 \item{\code{Wld_m}}{a numeric vector of length equal to the number of rows or columns in blockImmigrationRates and containing the number of wildtype males that are expected at time zero.}
 
 \item{\code{Wld_f_Unmated}}{a numeric vector of length equal to the number of rows or columns in blockImmigrationRates and containing the number of unmated wildtype females that are expected in a pure wildtype population at equilibrium.}
