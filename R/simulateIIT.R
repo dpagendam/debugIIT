@@ -193,7 +193,7 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 			{
 				if(!is.null(ratioReleased))
 				{
-					numReleased[i] = ratioReleased*sum(state[maleColIndices])
+					numReleased[i] = ratioReleased*sum(state[nrow(state), maleColIndices])
 				}
 				numReleasedOfThisType = round(numReleased[i]*releaseMixture[releaseTypes[i]])
 				if(numReleasedOfThisType > 0)
