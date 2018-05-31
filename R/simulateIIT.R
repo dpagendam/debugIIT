@@ -31,7 +31,7 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 	releaseTypes = names(releaseMixture)[which(releaseMixture > 0)]
 	for(i in 1:length(cn))
 	{
-		if(cn[i] %in% releaseTypes)
+		if(cn[i] %in% paste0(releaseTypes, "_m"))
 		{
 			#Do nothing
 		}
