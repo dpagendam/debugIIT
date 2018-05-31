@@ -27,6 +27,24 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 	types = names(propTypes)
 	state = createBlankStartStateVector(params, types)
 	cn = names(state)
+	maleColIndices = c()
+	releaseTypes = names(releaseMixture)[which(releaseMixture > 0)]
+	for(i in 1:length(cn))
+	{
+		if(cn[i] %in% releaseTypes)
+		{
+			#Do nothing
+		}
+		else
+		{
+			test = unlist(strsplit(cn[i], "_m"))
+			if(test[1] != cn[i])
+			{
+				maleColIndices = c(maleColIndices, i)
+			}
+		}
+		
+	}
 	names = names(propTypes)
 	releaseTypes = names(releaseMixture)
 	friedsIndexForReleaseMixture = rep(NA, length(releaseMixture))
@@ -120,7 +138,7 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 	{
 		if(!is.null(ratioReleased))
 		{
-			numReleased[1] = ratioReleased*state["Wld_m"]
+			numReleased[1] = ratioReleased*sum(state[maleColIndices])
 		}
 		numReleasedOfThisType = round(numReleased[1]*releaseMixture[releaseTypes[i]])
 		if(numReleasedOfThisType > 0)
@@ -175,7 +193,7 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 			{
 				if(!is.null(ratioReleased))
 				{
-					numReleased[i] = ratioReleased*nextStart["Wld_m"]
+					numReleased[i] = ratioReleased*sum(state[maleColIndices])
 				}
 				numReleasedOfThisType = round(numReleased[i]*releaseMixture[releaseTypes[i]])
 				if(numReleasedOfThisType > 0)
