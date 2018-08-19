@@ -75,7 +75,7 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 		for(i in 1:length(names))
 		{
 			state[paste0(names[i], "_f_Unmated")] = unmatedFemaleNumbersByType[i]
-			matingNumbers = round(matedfemaleNumbersByType*matingProbs)
+			matingNumbers = round(matedfemaleNumbersByType[i]*matingProbs)
 			for(j in 1:length(names))
 			{
 				state[paste0(names[i], "_f_", names[j])] = matingNumbers[j]
@@ -84,7 +84,7 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 		
 		for(i in 1:n)
 		{
-			immNumbers = rmultinom(1, round(params["K_eq"]*(params["mu_f_Wld"]*params["theta"] + params["mu_m_Wld"])/(params["gamma_rate"]*(1 + params["theta"]))), propTypes)
+			immNumbers = round(params["K_eq"]*(params["mu_f_Wld"]*params["theta"] + params["mu_m_Wld"])/(params["gamma_rate"]*(1 + params["theta"]))*propTypes )
 			for(j in 1:length(names))
 			{
 				state[paste0(names[j], "_imm_", i)] = immNumbers[j]
