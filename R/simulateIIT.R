@@ -58,30 +58,36 @@ simulateIIT = function(params, blockImmigrationRates, Wld_m, Wld_f_Unmated, Wld_
 	maleNames = c()
 	if(!stochasticInitial)
 	{
+		maleNumbers = round(Wld_m*propTypes)
+		unmatedFemaleNumbers = round(Wld_f_Unmated*propTypes)
 		friedsIndexParams = rep(NA, length(names))
 		for(i in 1:length(names))
 		{
-			state[paste0(names[i], "_m")] = round(propTypes[i]*Wld_m)
-			state[paste0(names[i], "_f_Unmated")] = round(propTypes[i]*Wld_f_Unmated)
+			state[paste0(names[i], "_m")] = maleNumbers[i]
+			state[paste0(names[i], "_f_Unmated")] = unmatedFemaleNumbers[i]
 			friedsIndexParams[i] = params[paste0("c_", names[i])]
 		}
 		
 		matingProbs = propTypes*friedsIndexParams
 		matingProbs = matingProbs/sum(matingProbs)
-		
+		matedfemaleNumbersByType = round(Wld_f_Wld*propTypes)
+		unmatedFemaleNumbersByType = round(Wld_f_Unmated*propTypes)
 		for(i in 1:length(names))
 		{
+			state[paste0(names[i], "_f_Unmated")] = unmatedFemaleNumbersByType[i]
+			matingNumbers = round(matedfemaleNumbersByType*matingProbs)
 			for(j in 1:length(names))
 			{
-				state[paste0(names[i], "_f_", names[j])] = round(propTypes[i]*Wld_f_Wld*matingProbs[j])
+				state[paste0(names[i], "_f_", names[j])] = matingNumbers[j]
 			}
 		}
 		
 		for(i in 1:n)
 		{
+			immNumbers = rmultinom(1, round(params["K_eq"]*(params["mu_f_Wld"]*params["theta"] + params["mu_m_Wld"])/(params["gamma_rate"]*(1 + params["theta"]))), propTypes)
 			for(j in 1:length(names))
 			{
-				state[paste0(names[j], "_imm_", i)] = round(propTypes[j]*params["K_eq"]*(params["mu_f_Wld"]*params["theta"] + params["mu_m_Wld"])/(params["gamma_rate"]*(1 + params["theta"])))
+				state[paste0(names[j], "_imm_", i)] = immNumbers[j]
 			}
 		}
 	}
