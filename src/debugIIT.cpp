@@ -187,11 +187,26 @@ Rcpp::List rate_f_cpp(Rcpp::NumericVector state, Rcpp::NumericVector params, Rcp
 		
 		if(params["DD_mating"] == 1)
 		{
-			f_birth = params["eta"]*(friedNumerator/friedDenominator)*state[unmatedFemaleStateName]*(totalMales/params["H"]);
+			if(friedDenominator == 0.0)
+			{
+				f_birth = 0.0;
+			}
+			else
+			{
+				f_birth = params["eta"]*(friedNumerator/friedDenominator)*state[unmatedFemaleStateName]*(totalMales/params["H"]);
+			}
+			
 		}
 		else
 		{
-			f_birth = params["eta"]*(friedNumerator/friedDenominator)*state[unmatedFemaleStateName];
+			if(friedDenominator == 0.0)
+			{
+				f_birth = 0.0;
+			}
+			else
+			{
+				f_birth = params["eta"]*(friedNumerator/friedDenominator)*state[unmatedFemaleStateName];
+			}
 		}
 		
 		f_birth_stateChange = rep(0.0, state.length());
@@ -487,12 +502,13 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 	// For each type of male, there are deaths
 	// For each type of female that has been mated by each type of female there are deaths 
 	// For each type there are numTypes immatures that can transition through the stages
-	int numTransitions = numTypes + numTypes*numTypes + numTypes*n;
+	int numTransitions = numTypes*2 + numTypes*(numTypes + 1)*2 + numTypes*n;
 	int counter = 0;
 	
 	
 	
 	l = state.length();
+	Rprintf("State length: %i \n", l);
 	Rcpp::NumericMatrix transitions(numTransitions, l);
 	Rcpp::NumericVector rates(numTransitions); 
 	Rcpp::List RcppOutput;
@@ -600,6 +616,9 @@ Rcpp::List simulateCTMC_cpp( Rcpp::NumericVector R_state, Rcpp::CharacterVector 
 			storeStates = storeStates_temp;
 		}
 	}
+	Rprintf("Cumulative Time: %g \n", cumulativeTime);
+	Rprintf("End Time: %g \n", endTime[0]);
+	Rprintf("Total Rate: %g \n", totalRate[0]);
 
 	if(store == true)
 	{
